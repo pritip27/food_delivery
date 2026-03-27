@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node --check db.js && node --check server.js && node --check auth.js && node --check script.js && node --check login.js && node --check register.js && node --check orders.js && node --check admin.js"
+    "check": "node --check db.js && node --check server.js && node --check auth.js && node --check script.js && node --check login.js && node --check register.js && node --check orders.js && node --check admin.js",
+    "test": "node --test test/api.test.js"
   },
   "dependencies": {
     "mongodb": "^6.18.0"
