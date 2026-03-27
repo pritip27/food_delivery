@@ -41,10 +41,7 @@ async function waitForServer() {
   throw new Error("Timed out waiting for the server to start.");
 }
 
-test.before(async () => {
-  mongoClient = new MongoClient(mongoUri);
-  await mongoClient.connect();
-
+async function startServer() {
   serverProcess = spawn(process.execPath, ["server.js"], {
     cwd: process.cwd(),
     env: {
@@ -66,13 +63,25 @@ test.before(async () => {
   });
 
   await waitForServer();
+}
+
+async function stopServer() {
+  if (!serverProcess || serverProcess.killed) {
+    return;
+  }
+
+  serverProcess.kill();
+  await once(serverProcess, "exit").catch(() => undefined);
+}
+
+test.before(async () => {
+  mongoClient = new MongoClient(mongoUri);
+  await mongoClient.connect();
+  await startServer();
 });
 
 test.after(async () => {
-  if (serverProcess && !serverProcess.killed) {
-    serverProcess.kill();
-    await once(serverProcess, "exit").catch(() => undefined);
-  }
+  await stopServer();
 
   if (mongoClient) {
     await mongoClient.db(databaseName).dropDatabase().catch(() => undefined);
@@ -113,6 +122,32 @@ test("allows seeded user login and session lookup", async () => {
 
   assert.equal(session.response.status, 200);
   assert.equal(session.payload.user.role, "user");
+});
+
+test("keeps a login session valid after a server restart", async () => {
+  const login = await api("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: "user@spiceroute.com",
+      password: "user123",
+      role: "user",
+    }),
+  });
+
+  assert.equal(login.response.status, 200);
+
+  await stopServer();
+  await startServer();
+
+  const session = await api("/api/session", {
+    headers: {
+      Authorization: `Bearer ${login.payload.token}`,
+    },
+  });
+
+  assert.equal(session.response.status, 200);
+  assert.equal(session.payload.user.email, "user@spiceroute.com");
 });
 
 test("creates an order for a user and lets admin update the status", async () => {

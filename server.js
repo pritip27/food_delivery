@@ -14,7 +14,6 @@ const API_WINDOW_LIMIT = 300;
 const AUTH_WINDOW_MS = 1000 * 60 * 15;
 const AUTH_WINDOW_LIMIT = 12;
 
-const sessions = new Map();
 const rateLimits = new Map();
 
 let store;
@@ -220,15 +219,12 @@ async function findUserByEmail(email) {
 function createSession(user) {
   const token = crypto.randomBytes(24).toString("hex");
   const now = Date.now();
-  const session = {
+  return {
     token,
     user: sanitizeUser(user),
     createdAt: new Date(now).toISOString(),
     expiresAt: new Date(now + SESSION_TTL_MS).toISOString(),
   };
-
-  sessions.set(token, session);
-  return session;
 }
 
 async function registerUser(payload) {
@@ -279,30 +275,24 @@ function getTokenFromRequest(request) {
   return authHeader.slice(7).trim();
 }
 
-function getSessionFromRequest(request) {
+async function getSessionFromRequest(request) {
   const token = getTokenFromRequest(request);
-  const session = token ? sessions.get(token) || null : null;
+  const session = token ? await store.getSessionByToken(token) : null;
 
   if (!session) {
     return null;
   }
 
   if (Date.now() >= new Date(session.expiresAt).getTime()) {
-    sessions.delete(token);
+    await store.deleteSession(token);
     return null;
   }
 
   return session;
 }
 
-function cleanupExpiredSessions() {
-  const now = Date.now();
-
-  sessions.forEach((session, token) => {
-    if (now >= new Date(session.expiresAt).getTime()) {
-      sessions.delete(token);
-    }
-  });
+async function cleanupExpiredSessions() {
+  await store.deleteExpiredSessions(new Date().toISOString());
 }
 
 function getClientIp(request) {
@@ -365,8 +355,8 @@ function setCorsHeaders(request, response) {
   response.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
 }
 
-function requireSession(request, response) {
-  const session = getSessionFromRequest(request);
+async function requireSession(request, response) {
+  const session = await getSessionFromRequest(request);
 
   if (!session) {
     sendJson(response, 401, { message: "You must be logged in." });
@@ -683,7 +673,7 @@ async function startServer() {
     }
 
     if (request.method === "POST" && pathname === "/api/menu") {
-      const session = requireSession(request, response);
+      const session = await requireSession(request, response);
 
       if (!session) {
         return;
@@ -725,6 +715,7 @@ async function startServer() {
 
         const user = await migrateLegacyPasswordIfNeeded(existingUser, password);
         const session = createSession(user);
+        await store.insertSession(session);
         sendJson(response, 200, { token: session.token, user: session.user });
         return;
       } catch (error) {
@@ -752,7 +743,7 @@ async function startServer() {
     }
 
     if (request.method === "GET" && pathname === "/api/session") {
-      const session = requireSession(request, response);
+      const session = await requireSession(request, response);
 
       if (!session) {
         return;
@@ -766,7 +757,7 @@ async function startServer() {
       const token = getTokenFromRequest(request);
 
       if (token) {
-        sessions.delete(token);
+        await store.deleteSession(token);
       }
 
       sendJson(response, 200, { ok: true });
@@ -774,7 +765,7 @@ async function startServer() {
     }
 
     if (request.method === "GET" && pathname === "/api/orders") {
-      const session = requireSession(request, response);
+      const session = await requireSession(request, response);
 
       if (!session) {
         return;
@@ -785,7 +776,7 @@ async function startServer() {
     }
 
     if (request.method === "POST" && pathname === "/api/orders") {
-      const session = requireSession(request, response);
+      const session = await requireSession(request, response);
 
       if (!session) {
         return;
@@ -813,7 +804,7 @@ async function startServer() {
     }
 
     if (request.method === "PATCH" && /^\/api\/orders\/[^/]+\/status$/.test(pathname)) {
-      const session = requireSession(request, response);
+      const session = await requireSession(request, response);
 
       if (!session) {
         return;
@@ -842,7 +833,7 @@ async function startServer() {
     }
 
     if (request.method === "DELETE" && /^\/api\/menu\/[^/]+$/.test(pathname)) {
-      const session = requireSession(request, response);
+      const session = await requireSession(request, response);
 
       if (!session) {
         return;
@@ -882,7 +873,9 @@ async function startServer() {
   });
 
   setInterval(() => {
-    cleanupExpiredSessions();
+    cleanupExpiredSessions().catch((error) => {
+      console.error("Unable to clean up expired sessions:", error);
+    });
     cleanupRateLimits();
   }, 1000 * 60 * 5).unref();
 

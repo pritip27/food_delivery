@@ -52,12 +52,15 @@ async function initializeDatabase({ defaultUsers, defaultMenuItems }) {
   const users = db.collection("users");
   const menuItems = db.collection("menuItems");
   const orders = db.collection("orders");
+  const sessions = db.collection("sessions");
 
   await users.createIndex({ email: 1 }, { unique: true });
   await users.createIndex({ id: 1 }, { unique: true });
   await menuItems.createIndex({ id: 1 }, { unique: true });
   await orders.createIndex({ id: 1 }, { unique: true });
   await orders.createIndex({ userEmail: 1, createdAt: -1 });
+  await sessions.createIndex({ token: 1 }, { unique: true });
+  await sessions.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
   await seedCollectionIfEmpty(users, path.join(__dirname, "users.json"), defaultUsers);
   await seedCollectionIfEmpty(menuItems, path.join(__dirname, "menu.json"), defaultMenuItems);
@@ -159,6 +162,19 @@ async function initializeDatabase({ defaultUsers, defaultMenuItems }) {
     async insertOrder(order) {
       await orders.insertOne({ ...order });
       return order;
+    },
+    async insertSession(session) {
+      await sessions.insertOne({ ...session });
+      return session;
+    },
+    async getSessionByToken(token) {
+      return withoutMongoId(await sessions.findOne({ token }));
+    },
+    async deleteSession(token) {
+      await sessions.deleteOne({ token });
+    },
+    async deleteExpiredSessions(nowIsoString) {
+      await sessions.deleteMany({ expiresAt: { $lte: nowIsoString } });
     },
     async updateOrderStatus(orderId, status) {
       const updated = await orders.findOneAndUpdate(
