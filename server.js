@@ -2,19 +2,23 @@ const http = require("http");
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
+const { initializeDatabase } = require("./db");
 
 const HOST = process.env.HOST || "127.0.0.1";
 const PORT = process.env.PORT || 3000;
 const publicDir = __dirname;
-const ordersFilePath = path.join(__dirname, "orders.json");
-const usersFilePath = path.join(__dirname, "users.json");
-const menuFilePath = path.join(__dirname, "menu.json");
 const SESSION_TTL_MS = 1000 * 60 * 60 * 12;
 const MAX_BODY_SIZE = 1024 * 1024;
 const API_WINDOW_MS = 1000 * 60 * 15;
 const API_WINDOW_LIMIT = 300;
 const AUTH_WINDOW_MS = 1000 * 60 * 15;
 const AUTH_WINDOW_LIMIT = 12;
+
+const sessions = new Map();
+const rateLimits = new Map();
+
+let store;
+
 const defaultUsersSeed = [
   {
     id: "user-1",
@@ -31,11 +35,6 @@ const defaultUsersSeed = [
     password: "admin123",
   },
 ];
-const defaultUsers = defaultUsersSeed.map((user) => createStoredUser(user));
-const users = loadUsers();
-
-const sessions = new Map();
-const rateLimits = new Map();
 
 const defaultMenuItems = [
   {
@@ -81,9 +80,6 @@ const defaultMenuItems = [
     description: "Rich cold coffee, vanilla cream, cocoa dust.",
   },
 ];
-const menuItems = loadMenuItems();
-
-const orders = loadOrders();
 
 const contentTypes = {
   ".html": "text/html; charset=utf-8",
@@ -106,11 +102,18 @@ function createStoredUser(user) {
   const { password, ...safeUser } = user;
 
   if (user.passwordHash && user.passwordSalt && user.passwordIterations) {
-    return { ...safeUser, passwordHash: user.passwordHash, passwordSalt: user.passwordSalt, passwordIterations: user.passwordIterations };
+    return {
+      ...safeUser,
+      passwordHash: user.passwordHash,
+      passwordSalt: user.passwordSalt,
+      passwordIterations: user.passwordIterations,
+    };
   }
 
-  const record = hashPassword(String(password || ""));
-  return { ...safeUser, ...record };
+  return {
+    ...safeUser,
+    ...hashPassword(String(password || "")),
+  };
 }
 
 function verifyPassword(password, user) {
@@ -134,146 +137,22 @@ function verifyPassword(password, user) {
   return String(user.password || "") === String(password || "");
 }
 
-function migrateLegacyPasswordIfNeeded(user, password) {
+async function migrateLegacyPasswordIfNeeded(user, password) {
   if (user.passwordHash && user.passwordSalt && user.passwordIterations) {
-    return;
+    return user;
   }
 
   const record = hashPassword(String(password || ""));
-  user.passwordHash = record.passwordHash;
-  user.passwordSalt = record.passwordSalt;
-  user.passwordIterations = record.passwordIterations;
-  delete user.password;
-  saveUsers();
-}
+  const updatedUser = {
+    ...user,
+    passwordHash: record.passwordHash,
+    passwordSalt: record.passwordSalt,
+    passwordIterations: record.passwordIterations,
+  };
 
-function writeJsonFile(filePath, data) {
-  const tempPath = `${filePath}.tmp`;
-  fs.writeFileSync(tempPath, JSON.stringify(data, null, 2));
-  fs.renameSync(tempPath, filePath);
-}
-
-function loadOrders() {
-  try {
-    if (!fs.existsSync(ordersFilePath)) {
-      return [];
-    }
-
-    const fileContent = fs.readFileSync(ordersFilePath, "utf8");
-
-    if (!fileContent.trim()) {
-      return [];
-    }
-
-    const parsedOrders = JSON.parse(fileContent);
-    return Array.isArray(parsedOrders) ? parsedOrders : [];
-  } catch (error) {
-    console.error("Unable to load orders from storage:", error.message);
-    return [];
-  }
-}
-
-function saveOrders() {
-  writeJsonFile(ordersFilePath, orders);
-}
-
-function loadUsers() {
-  try {
-    if (!fs.existsSync(usersFilePath)) {
-      writeJsonFile(usersFilePath, defaultUsers);
-      return defaultUsers.map((user) => ({ ...user }));
-    }
-
-    const fileContent = fs.readFileSync(usersFilePath, "utf8");
-
-    if (!fileContent.trim()) {
-      writeJsonFile(usersFilePath, defaultUsers);
-      return defaultUsers.map((user) => ({ ...user }));
-    }
-
-    const parsedUsers = JSON.parse(fileContent);
-    const normalizedUsers = Array.isArray(parsedUsers) ? parsedUsers.map((user) => createStoredUser(user)) : defaultUsers.map((user) => ({ ...user }));
-    writeJsonFile(usersFilePath, normalizedUsers);
-    return normalizedUsers;
-  } catch (error) {
-    console.error("Unable to load users from storage:", error.message);
-    return defaultUsers.map((user) => ({ ...user }));
-  }
-}
-
-function saveUsers() {
-  writeJsonFile(usersFilePath, users);
-}
-
-function loadMenuItems() {
-  try {
-    if (!fs.existsSync(menuFilePath)) {
-      writeJsonFile(menuFilePath, defaultMenuItems);
-      return defaultMenuItems.map((item) => ({ ...item }));
-    }
-
-    const fileContent = fs.readFileSync(menuFilePath, "utf8");
-
-    if (!fileContent.trim()) {
-      writeJsonFile(menuFilePath, defaultMenuItems);
-      return defaultMenuItems.map((item) => ({ ...item }));
-    }
-
-    const parsedMenu = JSON.parse(fileContent);
-    return Array.isArray(parsedMenu) ? parsedMenu : defaultMenuItems.map((item) => ({ ...item }));
-  } catch (error) {
-    console.error("Unable to load menu from storage:", error.message);
-    return defaultMenuItems.map((item) => ({ ...item }));
-  }
-}
-
-function saveMenuItems() {
-  writeJsonFile(menuFilePath, menuItems);
-}
-
-function getNextOrderId() {
-  const highestOrderNumber = orders.reduce((highest, order) => {
-    const match = /^ORD-(\d+)$/.exec(String(order.id || ""));
-
-    if (!match) {
-      return highest;
-    }
-
-    return Math.max(highest, Number(match[1]));
-  }, 0);
-
-  return `ORD-${highestOrderNumber + 1}`;
-}
-
-function getNextUserId() {
-  const highestUserNumber = users.reduce((highest, user) => {
-    const match = /^user-(\d+)$/.exec(String(user.id || ""));
-
-    if (!match) {
-      return highest;
-    }
-
-    return Math.max(highest, Number(match[1]));
-  }, 0);
-
-  return `user-${highestUserNumber + 1}`;
-}
-
-function createMenuItemId(name) {
-  const base = String(name || "")
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "") || "menu-item";
-  let nextId = base;
-  let counter = 2;
-
-  while (menuItems.some((item) => item.id === nextId)) {
-    nextId = `${base}-${counter}`;
-    counter += 1;
-  }
-
-  return nextId;
+  delete updatedUser.password;
+  await store.replaceUser(updatedUser);
+  return updatedUser;
 }
 
 function serveFile(response, filePath) {
@@ -330,12 +209,12 @@ function sanitizeUser(user) {
   };
 }
 
-function findUser(email, role) {
-  return users.find((user) => user.email === email && user.role === role);
+async function findUser(email, role) {
+  return store.getUserByEmailAndRole(email, role);
 }
 
-function findUserByEmail(email) {
-  return users.find((user) => user.email === email);
+async function findUserByEmail(email) {
+  return store.getUserByEmail(email);
 }
 
 function createSession(user) {
@@ -352,7 +231,7 @@ function createSession(user) {
   return session;
 }
 
-function registerUser(payload) {
+async function registerUser(payload) {
   const name = String(payload.name || "").trim();
   const email = String(payload.email || "").trim().toLowerCase();
   const password = String(payload.password || "").trim();
@@ -366,7 +245,7 @@ function registerUser(payload) {
     return { error: "A valid email address is required." };
   }
 
-  if (findUserByEmail(email)) {
+  if (await findUserByEmail(email)) {
     return { error: "An account with this email already exists." };
   }
 
@@ -379,15 +258,14 @@ function registerUser(payload) {
   }
 
   const user = createStoredUser({
-    id: getNextUserId(),
+    id: await store.getNextUserId(),
     role: "user",
     name,
     email,
     password,
   });
 
-  users.push(user);
-  saveUsers();
+  await store.insertUser(user);
   return { user: sanitizeUser(user) };
 }
 
@@ -444,7 +322,10 @@ function checkRateLimit(key, limit, windowMs) {
   existing.count += 1;
 
   if (existing.count > limit) {
-    return { allowed: false, retryAfterSeconds: Math.max(1, Math.ceil((existing.resetAt - now) / 1000)) };
+    return {
+      allowed: false,
+      retryAfterSeconds: Math.max(1, Math.ceil((existing.resetAt - now) / 1000)),
+    };
   }
 
   return { allowed: true, retryAfterSeconds: 0 };
@@ -504,12 +385,8 @@ function requireRole(session, response, role) {
   return true;
 }
 
-function getVisibleOrdersForSession(session) {
-  if (session.user.role === "admin") {
-    return orders;
-  }
-
-  return orders.filter((order) => order.userEmail === session.user.email);
+async function getVisibleOrdersForSession(session) {
+  return store.getVisibleOrdersForUser(session.user);
 }
 
 function isValidCardNumber(cardNumber) {
@@ -618,11 +495,11 @@ function validatePayment(payment) {
   };
 }
 
-function createOrder(payload, session) {
+async function createOrder(payload, session) {
   const customerName = String(payload.customerName || "").trim();
   const customerPhone = String(payload.customerPhone || "").replace(/\D+/g, "");
   const deliveryAddress = String(payload.deliveryAddress || "").trim();
-  const items = Array.isArray(payload.items) ? payload.items : [];
+  const requestedItems = Array.isArray(payload.items) ? payload.items : [];
   const paymentValidation = validatePayment(payload.payment || {});
 
   if (!customerName) {
@@ -649,7 +526,7 @@ function createOrder(payload, session) {
     return { error: "Delivery address should be at least 10 characters." };
   }
 
-  if (items.length === 0) {
+  if (requestedItems.length === 0) {
     return { error: "At least one order item is required." };
   }
 
@@ -657,8 +534,10 @@ function createOrder(payload, session) {
     return { error: paymentValidation.error };
   }
 
-  const normalizedItems = items.map((item) => {
-    const menuItem = menuItems.find((entry) => entry.id === item.id);
+  const menuItems = await store.getMenuItemsByIds(requestedItems.map((item) => item.id));
+  const menuItemMap = new Map(menuItems.map((item) => [item.id, item]));
+  const normalizedItems = requestedItems.map((item) => {
+    const menuItem = menuItemMap.get(item.id);
     const quantity = Number(item.quantity);
 
     if (!menuItem || !Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
@@ -680,7 +559,7 @@ function createOrder(payload, session) {
 
   const total = normalizedItems.reduce((sum, item) => sum + item.lineTotal, 0);
   const order = {
-    id: getNextOrderId(),
+    id: await store.getNextOrderId(),
     userId: session.user.id,
     userEmail: session.user.email,
     customerName,
@@ -693,31 +572,28 @@ function createOrder(payload, session) {
     payment: paymentValidation.payment,
   };
 
-  orders.push(order);
-  saveOrders();
+  await store.insertOrder(order);
   return { order };
 }
 
-function updateOrderStatus(orderId, status) {
-  const order = orders.find((entry) => entry.id === orderId);
+async function updateOrderStatus(orderId, status) {
   const normalizedStatus = String(status || "").trim().toLowerCase();
   const allowedStatuses = ["received", "preparing", "out for delivery", "delivered"];
-
-  if (!order) {
-    return { error: "Order not found." };
-  }
 
   if (!allowedStatuses.includes(normalizedStatus)) {
     return { error: "Invalid order status." };
   }
 
-  order.status = normalizedStatus;
-  order.updatedAt = new Date().toISOString();
-  saveOrders();
+  const order = await store.updateOrderStatus(orderId, normalizedStatus);
+
+  if (!order) {
+    return { error: "Order not found." };
+  }
+
   return { order };
 }
 
-function createMenuItem(payload) {
+async function createMenuItem(payload) {
   const name = String(payload.name || "").trim();
   const category = String(payload.category || "").trim();
   const description = String(payload.description || "").trim();
@@ -740,273 +616,282 @@ function createMenuItem(payload) {
   }
 
   const menuItem = {
-    id: createMenuItemId(name),
+    id: await store.getNextMenuItemId(name),
     name,
     category,
     price: Math.round(price),
     description,
   };
 
-  menuItems.push(menuItem);
-  saveMenuItems();
+  await store.insertMenuItem(menuItem);
   return { menuItem };
 }
 
-function deleteMenuItem(menuItemId) {
-  const itemIndex = menuItems.findIndex((item) => item.id === menuItemId);
+async function deleteMenuItem(menuItemId) {
+  const menuItem = await store.deleteMenuItem(menuItemId);
 
-  if (itemIndex === -1) {
+  if (!menuItem) {
     return { error: "Menu item not found." };
   }
 
-  const [removedItem] = menuItems.splice(itemIndex, 1);
-  saveMenuItems();
-  return { menuItem: removedItem };
+  return { menuItem };
 }
 
-const server = http.createServer(async (request, response) => {
-  const requestUrl = new URL(request.url, `http://${request.headers.host || `${HOST}:${PORT}`}`);
-  const pathname = requestUrl.pathname;
-  const clientIp = getClientIp(request);
+async function startServer() {
+  store = await initializeDatabase({
+    defaultUsers: defaultUsersSeed.map((user) => createStoredUser(user)),
+    defaultMenuItems,
+  });
 
-  setSecurityHeaders(response);
-  setCorsHeaders(request, response);
+  const server = http.createServer(async (request, response) => {
+    const requestUrl = new URL(request.url, `http://${request.headers.host || `${HOST}:${PORT}`}`);
+    const pathname = requestUrl.pathname;
+    const clientIp = getClientIp(request);
 
-  if (request.method === "OPTIONS") {
-    response.writeHead(204);
-    response.end();
-    return;
-  }
+    setSecurityHeaders(response);
+    setCorsHeaders(request, response);
 
-  if (pathname.startsWith("/api/")) {
-    const apiRateLimit = checkRateLimit(`${clientIp}:api`, API_WINDOW_LIMIT, API_WINDOW_MS);
-
-    if (!apiRateLimit.allowed) {
-      response.setHeader("Retry-After", String(apiRateLimit.retryAfterSeconds));
-      sendJson(response, 429, { message: "Too many requests. Please try again shortly." });
-      return;
-    }
-  }
-
-  if ((pathname === "/api/login" || pathname === "/api/register") && request.method === "POST") {
-    const authRateLimit = checkRateLimit(`${clientIp}:auth`, AUTH_WINDOW_LIMIT, AUTH_WINDOW_MS);
-
-    if (!authRateLimit.allowed) {
-      response.setHeader("Retry-After", String(authRateLimit.retryAfterSeconds));
-      sendJson(response, 429, { message: "Too many authentication attempts. Please wait and retry." });
-      return;
-    }
-  }
-
-  if (request.method === "GET" && pathname === "/api/menu") {
-    sendJson(response, 200, menuItems);
-    return;
-  }
-
-  if (request.method === "POST" && pathname === "/api/menu") {
-    const session = requireSession(request, response);
-
-    if (!session) {
+    if (request.method === "OPTIONS") {
+      response.writeHead(204);
+      response.end();
       return;
     }
 
-    if (!requireRole(session, response, "admin")) {
+    if (pathname.startsWith("/api/")) {
+      const apiRateLimit = checkRateLimit(`${clientIp}:api`, API_WINDOW_LIMIT, API_WINDOW_MS);
+
+      if (!apiRateLimit.allowed) {
+        response.setHeader("Retry-After", String(apiRateLimit.retryAfterSeconds));
+        sendJson(response, 429, { message: "Too many requests. Please try again shortly." });
+        return;
+      }
+    }
+
+    if ((pathname === "/api/login" || pathname === "/api/register") && request.method === "POST") {
+      const authRateLimit = checkRateLimit(`${clientIp}:auth`, AUTH_WINDOW_LIMIT, AUTH_WINDOW_MS);
+
+      if (!authRateLimit.allowed) {
+        response.setHeader("Retry-After", String(authRateLimit.retryAfterSeconds));
+        sendJson(response, 429, { message: "Too many authentication attempts. Please wait and retry." });
+        return;
+      }
+    }
+
+    if (request.method === "GET" && pathname === "/api/menu") {
+      sendJson(response, 200, await store.getAllMenuItems());
       return;
     }
 
-    try {
-      const payload = await parseBody(request);
-      const result = createMenuItem(payload);
+    if (request.method === "POST" && pathname === "/api/menu") {
+      const session = requireSession(request, response);
+
+      if (!session) {
+        return;
+      }
+
+      if (!requireRole(session, response, "admin")) {
+        return;
+      }
+
+      try {
+        const payload = await parseBody(request);
+        const result = await createMenuItem(payload);
+
+        if (result.error) {
+          sendJson(response, 400, { message: result.error });
+          return;
+        }
+
+        sendJson(response, 201, result.menuItem);
+        return;
+      } catch (error) {
+        sendJson(response, 400, { message: "Request body must be valid JSON." });
+        return;
+      }
+    }
+
+    if (request.method === "POST" && pathname === "/api/login") {
+      try {
+        const payload = await parseBody(request);
+        const email = String(payload.email || "").trim().toLowerCase();
+        const password = String(payload.password || "").trim();
+        const role = String(payload.role || "").trim().toLowerCase();
+        const existingUser = await findUser(email, role);
+
+        if (!existingUser || !verifyPassword(password, existingUser)) {
+          sendJson(response, 401, { message: "Invalid email, password, or role." });
+          return;
+        }
+
+        const user = await migrateLegacyPasswordIfNeeded(existingUser, password);
+        const session = createSession(user);
+        sendJson(response, 200, { token: session.token, user: session.user });
+        return;
+      } catch (error) {
+        sendJson(response, 400, { message: "Request body must be valid JSON." });
+        return;
+      }
+    }
+
+    if (request.method === "POST" && pathname === "/api/register") {
+      try {
+        const payload = await parseBody(request);
+        const result = await registerUser(payload);
+
+        if (result.error) {
+          sendJson(response, 400, { message: result.error });
+          return;
+        }
+
+        sendJson(response, 201, { user: result.user });
+        return;
+      } catch (error) {
+        sendJson(response, 400, { message: "Request body must be valid JSON." });
+        return;
+      }
+    }
+
+    if (request.method === "GET" && pathname === "/api/session") {
+      const session = requireSession(request, response);
+
+      if (!session) {
+        return;
+      }
+
+      sendJson(response, 200, { user: session.user });
+      return;
+    }
+
+    if (request.method === "POST" && pathname === "/api/logout") {
+      const token = getTokenFromRequest(request);
+
+      if (token) {
+        sessions.delete(token);
+      }
+
+      sendJson(response, 200, { ok: true });
+      return;
+    }
+
+    if (request.method === "GET" && pathname === "/api/orders") {
+      const session = requireSession(request, response);
+
+      if (!session) {
+        return;
+      }
+
+      sendJson(response, 200, await getVisibleOrdersForSession(session));
+      return;
+    }
+
+    if (request.method === "POST" && pathname === "/api/orders") {
+      const session = requireSession(request, response);
+
+      if (!session) {
+        return;
+      }
+
+      if (!requireRole(session, response, "user")) {
+        return;
+      }
+
+      try {
+        const payload = await parseBody(request);
+        const result = await createOrder(payload, session);
+
+        if (result.error) {
+          sendJson(response, 400, { message: result.error });
+          return;
+        }
+
+        sendJson(response, 201, result.order);
+        return;
+      } catch (error) {
+        sendJson(response, 400, { message: "Request body must be valid JSON." });
+        return;
+      }
+    }
+
+    if (request.method === "PATCH" && /^\/api\/orders\/[^/]+\/status$/.test(pathname)) {
+      const session = requireSession(request, response);
+
+      if (!session) {
+        return;
+      }
+
+      if (!requireRole(session, response, "admin")) {
+        return;
+      }
+
+      try {
+        const payload = await parseBody(request);
+        const orderId = pathname.split("/")[3];
+        const result = await updateOrderStatus(orderId, payload.status);
+
+        if (result.error) {
+          sendJson(response, 400, { message: result.error });
+          return;
+        }
+
+        sendJson(response, 200, result.order);
+        return;
+      } catch (error) {
+        sendJson(response, 400, { message: "Request body must be valid JSON." });
+        return;
+      }
+    }
+
+    if (request.method === "DELETE" && /^\/api\/menu\/[^/]+$/.test(pathname)) {
+      const session = requireSession(request, response);
+
+      if (!session) {
+        return;
+      }
+
+      if (!requireRole(session, response, "admin")) {
+        return;
+      }
+
+      const menuItemId = pathname.split("/")[3];
+      const result = await deleteMenuItem(menuItemId);
 
       if (result.error) {
-        sendJson(response, 400, { message: result.error });
+        sendJson(response, 404, { message: result.error });
         return;
       }
 
-      sendJson(response, 201, result.menuItem);
-      return;
-    } catch (error) {
-      sendJson(response, 400, { message: "Request body must be valid JSON." });
-      return;
-    }
-  }
-
-  if (request.method === "POST" && pathname === "/api/login") {
-    try {
-      const payload = await parseBody(request);
-      const email = String(payload.email || "").trim().toLowerCase();
-      const password = String(payload.password || "").trim();
-      const role = String(payload.role || "").trim().toLowerCase();
-      const user = findUser(email, role);
-
-      if (!user || !verifyPassword(password, user)) {
-        sendJson(response, 401, { message: "Invalid email, password, or role." });
-        return;
-      }
-
-      migrateLegacyPasswordIfNeeded(user, password);
-      const session = createSession(user);
-      sendJson(response, 200, { token: session.token, user: session.user });
-      return;
-    } catch (error) {
-      sendJson(response, 400, { message: "Request body must be valid JSON." });
-      return;
-    }
-  }
-
-  if (request.method === "POST" && pathname === "/api/register") {
-    try {
-      const payload = await parseBody(request);
-      const result = registerUser(payload);
-
-      if (result.error) {
-        sendJson(response, 400, { message: result.error });
-        return;
-      }
-
-      sendJson(response, 201, { user: result.user });
-      return;
-    } catch (error) {
-      sendJson(response, 400, { message: "Request body must be valid JSON." });
-      return;
-    }
-  }
-
-  if (request.method === "GET" && pathname === "/api/session") {
-    const session = requireSession(request, response);
-
-    if (!session) {
+      sendJson(response, 200, result.menuItem);
       return;
     }
 
-    sendJson(response, 200, { user: session.user });
-    return;
-  }
-
-  if (request.method === "POST" && pathname === "/api/logout") {
-    const token = getTokenFromRequest(request);
-
-    if (token) {
-      sessions.delete(token);
-    }
-
-    sendJson(response, 200, { ok: true });
-    return;
-  }
-
-  if (request.method === "GET" && pathname === "/api/orders") {
-    const session = requireSession(request, response);
-
-    if (!session) {
+    if (request.method !== "GET") {
+      sendJson(response, 405, { message: "Method not allowed" });
       return;
     }
 
-    sendJson(response, 200, getVisibleOrdersForSession(session));
-    return;
-  }
+    const requestedPath = pathname === "/" ? "index.html" : pathname.slice(1);
+    const safePath = path.normalize(requestedPath).replace(/^(\.\.[\\/])+/, "");
+    const filePath = path.join(publicDir, safePath);
 
-  if (request.method === "POST" && pathname === "/api/orders") {
-    const session = requireSession(request, response);
-
-    if (!session) {
+    if (!filePath.startsWith(publicDir)) {
+      sendJson(response, 403, { message: "Access denied" });
       return;
     }
 
-    if (!requireRole(session, response, "user")) {
-      return;
-    }
+    serveFile(response, filePath);
+  });
 
-    try {
-      const payload = await parseBody(request);
-      const result = createOrder(payload, session);
+  setInterval(() => {
+    cleanupExpiredSessions();
+    cleanupRateLimits();
+  }, 1000 * 60 * 5).unref();
 
-      if (result.error) {
-        sendJson(response, 400, { message: result.error });
-        return;
-      }
+  server.listen(PORT, HOST, () => {
+    console.log(`Server running at http://${HOST}:${PORT}`);
+  });
+}
 
-      sendJson(response, 201, result.order);
-      return;
-    } catch (error) {
-      sendJson(response, 400, { message: "Request body must be valid JSON." });
-      return;
-    }
-  }
-
-  if (request.method === "PATCH" && /^\/api\/orders\/[^/]+\/status$/.test(pathname)) {
-    const session = requireSession(request, response);
-
-    if (!session) {
-      return;
-    }
-
-    if (!requireRole(session, response, "admin")) {
-      return;
-    }
-
-    try {
-      const payload = await parseBody(request);
-      const orderId = pathname.split("/")[3];
-      const result = updateOrderStatus(orderId, payload.status);
-
-      if (result.error) {
-        sendJson(response, 400, { message: result.error });
-        return;
-      }
-
-      sendJson(response, 200, result.order);
-      return;
-    } catch (error) {
-      sendJson(response, 400, { message: "Request body must be valid JSON." });
-      return;
-    }
-  }
-
-  if (request.method === "DELETE" && /^\/api\/menu\/[^/]+$/.test(pathname)) {
-    const session = requireSession(request, response);
-
-    if (!session) {
-      return;
-    }
-
-    if (!requireRole(session, response, "admin")) {
-      return;
-    }
-
-    const menuItemId = pathname.split("/")[3];
-    const result = deleteMenuItem(menuItemId);
-
-    if (result.error) {
-      sendJson(response, 404, { message: result.error });
-      return;
-    }
-
-    sendJson(response, 200, result.menuItem);
-    return;
-  }
-
-  if (request.method !== "GET") {
-    sendJson(response, 405, { message: "Method not allowed" });
-    return;
-  }
-
-  const requestedPath = pathname === "/" ? "index.html" : pathname.slice(1);
-  const safePath = path.normalize(requestedPath).replace(/^(\.\.[\\/])+/, "");
-  const filePath = path.join(publicDir, safePath);
-
-  if (!filePath.startsWith(publicDir)) {
-    sendJson(response, 403, { message: "Access denied" });
-    return;
-  }
-
-  serveFile(response, filePath);
-});
-
-setInterval(() => {
-  cleanupExpiredSessions();
-  cleanupRateLimits();
-}, 1000 * 60 * 5).unref();
-
-server.listen(PORT, HOST, () => {
-  console.log(`Server running at http://${HOST}:${PORT}`);
+startServer().catch((error) => {
+  console.error("Unable to start server:", error);
+  process.exit(1);
 });

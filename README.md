@@ -1,6 +1,6 @@
 # Spice Route Food Delivery
 
-A small Node.js food ordering app with a static frontend, local JSON storage, user checkout flow, and an admin dashboard for managing menu items and order status.
+A small Node.js food ordering app with a static frontend, MongoDB storage, user checkout flow, and an admin dashboard for managing menu items and order status.
 
 ## Features
 
@@ -10,13 +10,13 @@ A small Node.js food ordering app with a static frontend, local JSON storage, us
 - Card payment validation during checkout
 - Order history for signed-in users
 - Menu creation and deletion from the admin dashboard
-- Local JSON persistence for users, menu items, and orders
+- MongoDB persistence for users, menu items, and orders
 
 ## Tech Stack
 
 - Node.js built-in `http` server
 - Vanilla HTML, CSS, and JavaScript
-- JSON files for local storage
+- MongoDB for application data
 
 ## Getting Started
 
@@ -27,13 +27,27 @@ A small Node.js food ordering app with a static frontend, local JSON storage, us
 cd "C:\Users\Priti P\OneDrive\Documents\New project\food_delivery"
 ```
 
-3. Start the app:
+3. Create your environment file:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+4. Make sure MongoDB is running locally, or update `.env` with your MongoDB Atlas connection string.
+
+5. Install dependencies:
+
+```powershell
+npm install
+```
+
+6. Start the app:
 
 ```powershell
 npm start
 ```
 
-4. Open [http://127.0.0.1:3000](http://127.0.0.1:3000) in your browser.
+7. Open [http://127.0.0.1:3000](http://127.0.0.1:3000) in your browser.
 
 For local development with automatic restarts on Node.js 18+:
 
@@ -46,6 +60,14 @@ To run on a different host or port:
 ```powershell
 $env:HOST="0.0.0.0"
 $env:PORT="4000"
+npm start
+```
+
+To use MongoDB Atlas instead of local MongoDB:
+
+```powershell
+$env:MONGODB_URI="mongodb+srv://<username>:<password>@<cluster-url>/"
+$env:MONGODB_DB_NAME="spice_route"
 npm start
 ```
 
@@ -77,11 +99,11 @@ You can also create a new user account from `register.html`.
 - `POST /api/orders` (user only)
 - `PATCH /api/orders/:id/status` (admin only)
 
-## Data Files
+## Data Seeding
 
-- `menu.json`: menu items shown in the storefront
-- `users.json`: registered users and seeded demo accounts
-- `orders.json`: saved order history
+- `menu.json`: initial menu seed for a fresh database
+- `users.json`: initial demo-account seed for a fresh database
+- `orders.json`: initial order seed for a fresh database
 
 ## Notes
 
@@ -89,3 +111,4 @@ You can also create a new user account from `register.html`.
 - Passwords are stored using PBKDF2 hashing.
 - Card details are validated for format and only the last four digits are saved with each order.
 - Run `npm run check` for a quick JavaScript syntax check across the app files.
+- The server seeds MongoDB collections from the JSON files only when the corresponding collection is empty.
