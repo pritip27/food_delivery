@@ -5,6 +5,7 @@ const userLatestStatus = document.getElementById("userLatestStatus");
 const userOrdersMessage = document.getElementById("userOrdersMessage");
 const refreshUserOrdersButton = document.getElementById("refreshUserOrdersButton");
 const ordersLogoutButton = document.getElementById("ordersLogoutButton");
+const refreshUserOrdersButtonLabel = refreshUserOrdersButton ? refreshUserOrdersButton.textContent : "";
 
 function formatPrice(value) {
   return `Rs. ${value}`;
@@ -17,6 +18,15 @@ function setUserOrdersMessage(message, type) {
   if (type) {
     userOrdersMessage.classList.add(`is-${type}`);
   }
+}
+
+function setRefreshButtonState(isProcessing) {
+  if (!refreshUserOrdersButton) {
+    return;
+  }
+
+  refreshUserOrdersButton.disabled = isProcessing;
+  refreshUserOrdersButton.textContent = isProcessing ? "Refreshing..." : refreshUserOrdersButtonLabel;
 }
 
 function ensureUserSession(session = getSession()) {
@@ -85,6 +95,7 @@ function renderOrders(orders) {
 
 async function loadOrders() {
   setUserOrdersMessage("Loading your orders...", null);
+  setRefreshButtonState(true);
 
   try {
     const orders = await apiRequest("/api/orders");
@@ -93,12 +104,14 @@ async function loadOrders() {
   } catch (error) {
     if (error.message === "You must be logged in.") {
       await logoutSession();
-      window.location.href = "login.html";
+      window.location.href = "login.html?role=user&redirect=orders.html";
       return;
     }
 
     userOrdersList.innerHTML = '<p class="menu-error">Could not load your orders. Please try again.</p>';
     setUserOrdersMessage(error.message, "error");
+  } finally {
+    setRefreshButtonState(false);
   }
 }
 
@@ -106,7 +119,7 @@ refreshUserOrdersButton.addEventListener("click", loadOrders);
 
 ordersLogoutButton.addEventListener("click", async () => {
   await logoutSession();
-  window.location.href = "login.html";
+  window.location.href = "login.html?role=user";
 });
 
 async function initializeOrdersPage() {
