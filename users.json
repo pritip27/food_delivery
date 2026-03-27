@@ -1,0 +1,20 @@
+[
+  {
+    "id": "user-1",
+    "role": "user",
+    "name": "Spice Route Guest",
+    "email": "user@spiceroute.com",
+    "passwordHash": "9d12c3b63e8507d8950f06d05e9dd6c612685e00eec3783a08ebac9123885a5c20f5a96751f7ed53a3038380b66041bb05c65ed6c458d1bdc760938bc9229a7b",
+    "passwordSalt": "c24ce96b5380e2cfaa5bf317bd197fe7",
+    "passwordIterations": 120000
+  },
+  {
+    "id": "admin-1",
+    "role": "admin",
+    "name": "Spice Route Admin",
+    "email": "admin@spiceroute.com",
+    "passwordHash": "67184d373ffac65d7f302c0bbf0981a4347ca23cdd0a54ee3bbf0226f452b714c7ee783eebe297820c1adad8563a3f972a0f4767970e5d85f6c550b3ece3caf1",
+    "passwordSalt": "f33314b78265cbc7c82f584fab8f0721",
+    "passwordIterations": 120000
+  }
+]

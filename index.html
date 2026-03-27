@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spice Route | Food Ordering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <nav class="topbar">
+      <div class="brand">
+        <span class="brand-mark">SR</span>
+        <div>
+          <p class="brand-name">Spice Route</p>
+          <p class="brand-tag">Fresh meals, fast delivery</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <a href="#menu" class="nav-link">Menu</a>
+        <a href="login.html" class="nav-link" id="loginNavLink">Login</a>
+        <a href="orders.html" class="nav-link" id="ordersNavLink">My Orders</a>
+        <a href="admin.html" class="nav-link" id="adminNavLink">Admin</a>
+        <a href="#cart" class="order-link">View Cart</a>
+      </div>
+    </nav>
+
+    <section class="hero-content">
+      <div class="hero-copy">
+        <p class="eyebrow">Food ordering platform</p>
+        <div class="session-banner" id="sessionBanner" hidden>
+          <span id="sessionText">Signed in</span>
+          <button class="session-button" id="logoutButton" type="button">Logout</button>
+        </div>
+        <h1>Comfort food that looks premium and gets ordered in seconds.</h1>
+        <p class="hero-text">
+          A warm, modern storefront for your restaurant with featured dishes,
+          quick add-to-cart controls, secure checkout, and account-based order tracking.
+        </p>
+        <div class="hero-actions">
+          <a href="#menu" class="primary-button">Start Ordering</a>
+          <a href="#featured" class="secondary-button">See Specials</a>
+        </div>
+        <ul class="hero-points">
+          <li>Secure user and admin login</li>
+          <li>Mobile-friendly ordering flow</li>
+          <li>Live cart and order tracking</li>
+        </ul>
+      </div>
+
+      <div class="hero-card">
+        <p class="card-label">Today's best seller</p>
+        <h2>Smoky Paneer Bowl</h2>
+        <p class="card-text">Charred paneer, saffron rice, pickled onion, mint yogurt.</p>
+        <div class="hero-price-row">
+          <span class="price">Rs. 249</span>
+          <span class="rating">4.8 rating</span>
+        </div>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="stats-strip">
+      <article>
+        <strong>30 min</strong>
+        <span>Average delivery</span>
+      </article>
+      <article>
+        <strong>20+</strong>
+        <span>Chef-crafted meals</span>
+      </article>
+      <article>
+        <strong>4.9/5</strong>
+        <span>Happy customer score</span>
+      </article>
+    </section>
+
+    <section class="featured-section" id="featured">
+      <div class="section-heading">
+        <p class="eyebrow">Featured picks</p>
+        <h2>Built for hungry people who hate cluttered ordering screens.</h2>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <h3>Quick browsing</h3>
+          <p>Scan meals, prices, and categories without jumping across pages.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Instant cart updates</h3>
+          <p>Add dishes with one tap and keep totals visible the whole time.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Fully connected</h3>
+          <p>Login, payment, and live order APIs are already wired into the storefront.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="menu-section" id="menu">
+      <div class="section-heading">
+        <p class="eyebrow">Popular menu</p>
+        <h2>Choose your favorites</h2>
+      </div>
+
+      <div class="menu-layout">
+        <div class="menu-grid" id="menuGrid">
+          <p class="menu-loading">Loading menu...</p>
+        </div>
+
+        <aside class="cart-panel" id="cart">
+          <p class="eyebrow">Cart</p>
+          <h3>Your order</h3>
+          <div class="cart-items" id="cartItems">
+            <p class="empty-cart">No items yet. Add your first dish.</p>
+          </div>
+          <div class="cart-summary">
+            <div>
+              <span>Items</span>
+              <strong id="itemCount">0</strong>
+            </div>
+            <div>
+              <span>Total</span>
+              <strong id="totalPrice">Rs. 0</strong>
+            </div>
+          </div>
+          <form class="checkout-form" id="checkoutForm">
+            <label class="form-field" for="customerName">Customer Name</label>
+            <input class="form-input" id="customerName" name="customerName" type="text" placeholder="Enter your name">
+
+            <label class="form-field" for="customerPhone">Phone Number</label>
+            <input class="form-input" id="customerPhone" name="customerPhone" type="tel" placeholder="Enter your phone number">
+
+            <label class="form-field" for="deliveryAddress">Delivery Address</label>
+            <textarea class="form-input form-textarea" id="deliveryAddress" name="deliveryAddress" placeholder="Enter delivery address"></textarea>
+
+            <div class="payment-section">
+              <p class="payment-heading">Payment Details</p>
+
+              <label class="form-field" for="paymentMethod">Payment Method</label>
+              <select class="form-input" id="paymentMethod" name="paymentMethod">
+                <option value="card">Credit or Debit Card</option>
+              </select>
+
+              <label class="form-field" for="cardholderName">Cardholder Name</label>
+              <input class="form-input" id="cardholderName" name="cardholderName" type="text" placeholder="Name on card">
+
+              <label class="form-field" for="cardNumber">Card Number</label>
+              <input class="form-input" id="cardNumber" name="cardNumber" type="text" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456">
+
+              <div class="payment-grid">
+                <div>
+                  <label class="form-field" for="expiryDate">Expiry Date</label>
+                  <input class="form-input" id="expiryDate" name="expiryDate" type="text" inputmode="numeric" maxlength="5" placeholder="MM/YY">
+                </div>
+                <div>
+                  <label class="form-field" for="cvv">CVV</label>
+                  <input class="form-input" id="cvv" name="cvv" type="password" inputmode="numeric" maxlength="3" placeholder="123">
+                </div>
+              </div>
+            </div>
+
+            <p class="order-message" id="orderMessage" aria-live="polite"></p>
+            <button class="checkout-button" id="placeOrderButton" type="submit">Pay &amp; Place Order</button>
+          </form>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div class="payment-toast" id="paymentModal" hidden aria-hidden="true">
+    <div class="payment-toast-card" role="status" aria-live="polite" aria-atomic="true">
+      <div>
+        <p class="eyebrow">Payment successful</p>
+        <p class="payment-toast-text" id="paymentModalText">
+          Thanks for your payment. We are sending your meal to the kitchen now.
+        </p>
+      </div>
+      <button class="toast-close-button" id="closePaymentModal" type="button" aria-label="Close payment message">Close</button>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

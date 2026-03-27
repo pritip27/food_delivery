@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spice Route | My Orders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="admin-page">
+  <main class="admin-shell">
+    <section class="admin-header">
+      <div>
+        <p class="eyebrow">Your history</p>
+        <h1>Track your recent food orders.</h1>
+        <p class="auth-copy">See payment details, totals, and live delivery status after you login.</p>
+      </div>
+      <div class="admin-actions">
+        <a href="index.html" class="secondary-button">Storefront</a>
+        <button class="checkout-button admin-logout" id="ordersLogoutButton" type="button">Logout</button>
+      </div>
+    </section>
+
+    <section class="admin-grid">
+      <article class="admin-stat-card">
+        <span>Total orders</span>
+        <strong id="userOrderCount">0</strong>
+      </article>
+      <article class="admin-stat-card">
+        <span>Total spent</span>
+        <strong id="userTotalSpent">Rs. 0</strong>
+      </article>
+      <article class="admin-stat-card">
+        <span>Latest update</span>
+        <strong id="userLatestStatus">No orders</strong>
+      </article>
+    </section>
+
+    <section class="admin-list-card">
+      <div class="admin-list-heading">
+        <div>
+          <p class="eyebrow">Order history</p>
+          <h2>Your recent orders</h2>
+        </div>
+        <button class="secondary-button refresh-button" id="refreshUserOrdersButton" type="button">Refresh</button>
+      </div>
+      <p class="order-message" id="userOrdersMessage" aria-live="polite"></p>
+      <div class="orders-list" id="userOrdersList">
+        <p class="menu-loading">Loading your orders...</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="orders.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "spice-route-food-delivery",
+  "version": "1.0.0",
+  "description": "Food ordering app with a Node.js server, storefront checkout, and admin dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check auth.js && node --check script.js && node --check login.js && node --check register.js && node --check orders.js && node --check admin.js"
+  },
+  "keywords": [
+    "nodejs",
+    "food-delivery",
+    "vanilla-js",
+    "http-server"
+  ],
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  }
+}

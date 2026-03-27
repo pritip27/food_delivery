@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spice Route | Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-page">
+  <main class="auth-shell">
+    <section class="auth-card">
+      <a href="index.html" class="back-link">Back to menu</a>
+      <p class="eyebrow">Account access</p>
+      <h1>Login to order faster or manage incoming orders.</h1>
+      <p class="auth-copy">
+        Use the demo credentials below. User login returns to the storefront and admin login opens the order dashboard.
+      </p>
+
+      <div class="credential-list">
+        <article>
+          <strong>User demo</strong>
+          <span>Register a new user or use user@spiceroute.com / user123</span>
+        </article>
+        <article>
+          <strong>Admin demo</strong>
+          <span>admin@spiceroute.com / admin123</span>
+        </article>
+      </div>
+
+      <form class="auth-form" id="loginForm">
+        <label class="form-field" for="email">Email</label>
+        <input class="form-input" id="email" name="email" type="email" placeholder="Enter your email" required>
+
+        <label class="form-field" for="password">Password</label>
+        <input class="form-input" id="password" name="password" type="password" placeholder="Enter your password" required>
+
+        <label class="form-field" for="role">Role</label>
+        <select class="form-input" id="role" name="role">
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+
+        <p class="order-message" id="loginMessage" aria-live="polite"></p>
+        <button class="checkout-button" id="loginButton" type="submit">Login</button>
+      </form>
+
+      <p class="auth-switch">
+        New here?
+        <a href="register.html" class="auth-link">Create an account</a>
+      </p>
+    </section>
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="login.js"></script>
+</body>
+</html>

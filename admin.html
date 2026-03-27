@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spice Route | Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="admin-page">
+  <main class="admin-shell">
+    <section class="admin-header">
+      <div>
+        <p class="eyebrow">Admin dashboard</p>
+        <h1>Track incoming orders in one place.</h1>
+        <p class="auth-copy">Review totals, customer details, and the latest orders saved by the storefront.</p>
+      </div>
+      <div class="admin-actions">
+        <a href="index.html" class="secondary-button">Storefront</a>
+        <button class="checkout-button admin-logout" id="adminLogoutButton" type="button">Logout</button>
+      </div>
+    </section>
+
+    <section class="admin-grid">
+      <article class="admin-stat-card">
+        <span>Total orders</span>
+        <strong id="adminOrderCount">0</strong>
+      </article>
+      <article class="admin-stat-card">
+        <span>Total revenue</span>
+        <strong id="adminRevenue">Rs. 0</strong>
+      </article>
+      <article class="admin-stat-card">
+        <span>Latest status</span>
+        <strong id="adminLatestStatus">No orders</strong>
+      </article>
+    </section>
+
+    <section class="admin-list-card">
+      <div class="admin-list-heading">
+        <div>
+          <p class="eyebrow">Order feed</p>
+          <h2>Recent orders</h2>
+        </div>
+        <button class="secondary-button refresh-button" id="refreshOrdersButton" type="button">Refresh</button>
+      </div>
+      <p class="order-message" id="adminMessage" aria-live="polite"></p>
+      <div class="orders-list" id="ordersList">
+        <p class="menu-loading">Loading orders...</p>
+      </div>
+    </section>
+
+    <section class="admin-list-card">
+      <div class="admin-list-heading">
+        <div>
+          <p class="eyebrow">Menu manager</p>
+          <h2>Update the storefront menu</h2>
+        </div>
+        <button class="secondary-button refresh-button" id="refreshMenuButton" type="button">Refresh Menu</button>
+      </div>
+      <p class="order-message" id="menuManagerMessage" aria-live="polite"></p>
+
+      <form class="auth-form" id="menuForm">
+        <label class="form-field" for="menuItemName">Dish Name</label>
+        <input class="form-input" id="menuItemName" name="name" type="text" placeholder="Enter dish name" required>
+
+        <label class="form-field" for="menuItemCategory">Category</label>
+        <input class="form-input" id="menuItemCategory" name="category" type="text" placeholder="Enter category" required>
+
+        <label class="form-field" for="menuItemPrice">Price</label>
+        <input class="form-input" id="menuItemPrice" name="price" type="number" min="1" placeholder="Enter price" required>
+
+        <label class="form-field" for="menuItemDescription">Description</label>
+        <textarea class="form-input form-textarea" id="menuItemDescription" name="description" placeholder="Enter dish description" required></textarea>
+
+        <button class="checkout-button admin-logout" id="saveMenuItemButton" type="submit">Add Dish</button>
+      </form>
+
+      <div class="orders-list" id="menuItemsList">
+        <p class="menu-loading">Loading menu items...</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

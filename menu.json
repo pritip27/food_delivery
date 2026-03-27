@@ -1,0 +1,45 @@
+[
+  {
+    "id": "paneer-bowl",
+    "name": "Smoky Paneer Bowl",
+    "category": "Vegetarian",
+    "price": 249,
+    "description": "Paneer tikka, saffron rice, greens, mint yogurt."
+  },
+  {
+    "id": "burger-stack",
+    "name": "Zesty Burger Stack",
+    "category": "Fast Food",
+    "price": 199,
+    "description": "Double patty, spicy sauce, cheddar, crisp lettuce."
+  },
+  {
+    "id": "alfredo-pasta",
+    "name": "Creamy Alfredo Pasta",
+    "category": "Pasta",
+    "price": 229,
+    "description": "Silky white sauce, herbs, garlic toast, parmesan."
+  },
+  {
+    "id": "tandoori-pizza",
+    "name": "Tandoori Pizza Slice",
+    "category": "Fusion",
+    "price": 279,
+    "description": "Spiced topping, mozzarella, peppers, onion crunch."
+  },
+  {
+    "id": "loaded-fries",
+    "name": "Loaded Fries Box",
+    "category": "Snacks",
+    "price": 149,
+    "description": "Crispy fries, smoky mayo, jalapeno, cheese drizzle."
+  },
+  {
+    "id": "cold-coffee",
+    "name": "Cold Coffee Float",
+    "category": "Drinks",
+    "price": 119,
+    "description": "Rich cold coffee, vanilla cream, cocoa dust."
+  }
+]
+

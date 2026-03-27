@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spice Route | Register</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-page">
+  <main class="auth-shell">
+    <section class="auth-card">
+      <a href="index.html" class="back-link">Back to menu</a>
+      <p class="eyebrow">Create account</p>
+      <h1>Register to order and track your deliveries.</h1>
+      <p class="auth-copy">
+        Create a user account to pay for orders, view order history, and receive status updates from the admin dashboard.
+      </p>
+
+      <form class="auth-form" id="registerForm">
+        <label class="form-field" for="registerName">Full Name</label>
+        <input class="form-input" id="registerName" name="name" type="text" placeholder="Enter your full name" required>
+
+        <label class="form-field" for="registerEmail">Email</label>
+        <input class="form-input" id="registerEmail" name="email" type="email" placeholder="Enter your email" required>
+
+        <label class="form-field" for="registerPassword">Password</label>
+        <input class="form-input" id="registerPassword" name="password" type="password" placeholder="Create a password" required>
+
+        <label class="form-field" for="registerConfirmPassword">Confirm Password</label>
+        <input class="form-input" id="registerConfirmPassword" name="confirmPassword" type="password" placeholder="Re-enter your password" required>
+
+        <p class="order-message" id="registerMessage" aria-live="polite"></p>
+        <button class="checkout-button" id="registerButton" type="submit">Create Account</button>
+      </form>
+
+      <p class="auth-switch">
+        Already have an account?
+        <a href="login.html" class="auth-link">Login here</a>
+      </p>
+    </section>
+  </main>
+
+  <script src="auth.js"></script>
+  <script src="register.js"></script>
+</body>
+</html>
