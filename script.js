@@ -14,6 +14,7 @@ const logoutButton = document.getElementById("logoutButton");
 const loginNavLink = document.getElementById("loginNavLink");
 const ordersNavLink = document.getElementById("ordersNavLink");
 const adminNavLink = document.getElementById("adminNavLink");
+const menuSearchInput = document.getElementById("menuSearchInput");
 const cardNumberInput = document.getElementById("cardNumber");
 const expiryDateInput = document.getElementById("expiryDate");
 const cvvInput = document.getElementById("cvv");
@@ -23,6 +24,7 @@ const cardholderNameInput = document.getElementById("cardholderName");
 const cart = [];
 let menuItems = [];
 let paymentToastTimerId = null;
+let menuSearchDebounceId = null;
 const checkoutInputElements = checkoutForm ? Array.from(checkoutForm.querySelectorAll("input, textarea, select, button")) : [];
 const checkoutSubmitLabel = placeOrderButton ? placeOrderButton.textContent : "";
 
@@ -508,7 +510,15 @@ async function submitOrder(event) {
 
 async function loadMenu() {
   try {
-    const response = await fetch("/api/menu");
+    const searchParams = new URLSearchParams();
+    const search = menuSearchInput ? menuSearchInput.value.trim() : "";
+
+    if (search) {
+      searchParams.set("search", search);
+    }
+
+    const requestPath = searchParams.toString() ? `/api/menu?${searchParams.toString()}` : "/api/menu";
+    const response = await fetch(requestPath);
 
     if (!response.ok) {
       throw new Error("Menu request failed");
@@ -607,6 +617,18 @@ if (checkoutForm) {
     }
 
     setFieldError(target.id, "");
+  });
+}
+
+if (menuSearchInput) {
+  menuSearchInput.addEventListener("input", () => {
+    if (menuSearchDebounceId) {
+      window.clearTimeout(menuSearchDebounceId);
+    }
+
+    menuSearchDebounceId = window.setTimeout(() => {
+      loadMenu();
+    }, 250);
   });
 }
 

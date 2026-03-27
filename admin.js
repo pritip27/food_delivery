@@ -7,6 +7,8 @@ const refreshOrdersButton = document.getElementById("refreshOrdersButton");
 const adminLogoutButton = document.getElementById("adminLogoutButton");
 const menuManagerMessage = document.getElementById("menuManagerMessage");
 const refreshMenuButton = document.getElementById("refreshMenuButton");
+const adminOrdersSearchInput = document.getElementById("adminOrdersSearchInput");
+const adminOrderStatusFilter = document.getElementById("adminOrderStatusFilter");
 const menuForm = document.getElementById("menuForm");
 const menuItemsList = document.getElementById("menuItemsList");
 
@@ -17,6 +19,7 @@ const refreshOrdersButtonLabel = refreshOrdersButton ? refreshOrdersButton.textC
 const refreshMenuButtonLabel = refreshMenuButton ? refreshMenuButton.textContent : "";
 const savingOrderIds = new Set();
 const deletingMenuIds = new Set();
+let adminOrdersSearchDebounceId = null;
 
 function formatPrice(value) {
   return `Rs. ${value}`;
@@ -238,7 +241,20 @@ async function loadOrders() {
   setRefreshButtonState(refreshOrdersButton, true, "Refreshing...", refreshOrdersButtonLabel);
 
   try {
-    const orders = await apiRequest("/api/orders");
+    const searchParams = new URLSearchParams();
+    const search = adminOrdersSearchInput ? adminOrdersSearchInput.value.trim() : "";
+    const status = adminOrderStatusFilter ? adminOrderStatusFilter.value.trim() : "";
+
+    if (search) {
+      searchParams.set("search", search);
+    }
+
+    if (status) {
+      searchParams.set("status", status);
+    }
+
+    const requestPath = searchParams.toString() ? `/api/orders?${searchParams.toString()}` : "/api/orders";
+    const orders = await apiRequest(requestPath);
     renderOrders(orders);
     setAdminMessage(`Loaded ${orders.length} order${orders.length === 1 ? "" : "s"}.`, "success");
   } catch (error) {
@@ -425,6 +441,22 @@ async function deleteMenuItem(menuItemId) {
 refreshOrdersButton.addEventListener("click", loadOrders);
 refreshMenuButton.addEventListener("click", loadMenuItems);
 menuForm.addEventListener("submit", createMenuItem);
+
+if (adminOrdersSearchInput) {
+  adminOrdersSearchInput.addEventListener("input", () => {
+    if (adminOrdersSearchDebounceId) {
+      window.clearTimeout(adminOrdersSearchDebounceId);
+    }
+
+    adminOrdersSearchDebounceId = window.setTimeout(() => {
+      loadOrders();
+    }, 250);
+  });
+}
+
+if (adminOrderStatusFilter) {
+  adminOrderStatusFilter.addEventListener("change", loadOrders);
+}
 
 if (menuForm) {
   menuForm.addEventListener("input", (event) => {

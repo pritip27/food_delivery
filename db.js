@@ -132,8 +132,22 @@ async function initializeDatabase({ defaultUsers, defaultMenuItems }) {
       await users.replaceOne({ id: user.id }, { ...user }, { upsert: true });
       return user;
     },
-    async getAllMenuItems() {
-      return (await menuItems.find({}).sort({ name: 1 }).toArray()).map(withoutMongoId);
+    async getAllMenuItems(filters = {}) {
+      const query = {};
+
+      if (filters.search) {
+        query.$or = [
+          { name: { $regex: filters.search, $options: "i" } },
+          { category: { $regex: filters.search, $options: "i" } },
+          { description: { $regex: filters.search, $options: "i" } },
+        ];
+      }
+
+      if (filters.category) {
+        query.category = filters.category;
+      }
+
+      return (await menuItems.find(query).sort({ name: 1 }).toArray()).map(withoutMongoId);
     },
     async getMenuItemsByIds(ids) {
       return (await menuItems.find({ id: { $in: ids } }).toArray()).map(withoutMongoId);
@@ -146,8 +160,24 @@ async function initializeDatabase({ defaultUsers, defaultMenuItems }) {
       const deleted = await menuItems.findOneAndDelete({ id: menuItemId });
       return withoutMongoId(deleted);
     },
-    async getVisibleOrdersForUser(user) {
+    async getVisibleOrdersForUser(user, filters = {}) {
       const query = user.role === "admin" ? {} : { userEmail: user.email };
+
+      if (filters.status) {
+        query.status = filters.status;
+      }
+
+      if (filters.search) {
+        query.$or = [
+          { id: { $regex: filters.search, $options: "i" } },
+          { customerName: { $regex: filters.search, $options: "i" } },
+          { customerPhone: { $regex: filters.search, $options: "i" } },
+          { deliveryAddress: { $regex: filters.search, $options: "i" } },
+          { userEmail: { $regex: filters.search, $options: "i" } },
+          { "items.name": { $regex: filters.search, $options: "i" } },
+        ];
+      }
+
       return (await orders.find(query).sort({ createdAt: 1 }).toArray()).map(withoutMongoId);
     },
     async getNextOrderId() {

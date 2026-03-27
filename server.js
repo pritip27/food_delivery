@@ -375,8 +375,16 @@ function requireRole(session, response, role) {
   return true;
 }
 
-async function getVisibleOrdersForSession(session) {
-  return store.getVisibleOrdersForUser(session.user);
+function normalizeSearchFilters(searchParams) {
+  return {
+    search: String(searchParams.get("search") || "").trim(),
+    category: String(searchParams.get("category") || "").trim(),
+    status: String(searchParams.get("status") || "").trim().toLowerCase(),
+  };
+}
+
+async function getVisibleOrdersForSession(session, filters = {}) {
+  return store.getVisibleOrdersForUser(session.user, filters);
 }
 
 function isValidCardNumber(cardNumber) {
@@ -668,7 +676,8 @@ async function startServer() {
     }
 
     if (request.method === "GET" && pathname === "/api/menu") {
-      sendJson(response, 200, await store.getAllMenuItems());
+      const filters = normalizeSearchFilters(requestUrl.searchParams);
+      sendJson(response, 200, await store.getAllMenuItems(filters));
       return;
     }
 
@@ -771,7 +780,8 @@ async function startServer() {
         return;
       }
 
-      sendJson(response, 200, await getVisibleOrdersForSession(session));
+      const filters = normalizeSearchFilters(requestUrl.searchParams);
+      sendJson(response, 200, await getVisibleOrdersForSession(session, filters));
       return;
     }
 

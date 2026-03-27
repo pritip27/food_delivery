@@ -46,6 +46,18 @@
         </div>
         <button class="secondary-button refresh-button" id="refreshOrdersButton" type="button">Refresh</button>
       </div>
+      <div class="filter-toolbar filter-toolbar-split">
+        <label class="visually-hidden" for="adminOrdersSearchInput">Search admin orders</label>
+        <input class="form-input filter-input" id="adminOrdersSearchInput" type="search" placeholder="Search orders, customers, emails, or dishes">
+        <label class="visually-hidden" for="adminOrderStatusFilter">Filter by status</label>
+        <select class="form-input filter-select" id="adminOrderStatusFilter">
+          <option value="">All statuses</option>
+          <option value="received">Received</option>
+          <option value="preparing">Preparing</option>
+          <option value="out for delivery">Out for delivery</option>
+          <option value="delivered">Delivered</option>
+        </select>
+      </div>
       <p class="order-message" id="adminMessage" aria-live="polite"></p>
       <div class="orders-list" id="ordersList">
         <p class="menu-loading">Loading orders...</p>

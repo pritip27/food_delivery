@@ -46,6 +46,10 @@
         </div>
         <button class="secondary-button refresh-button" id="refreshUserOrdersButton" type="button">Refresh</button>
       </div>
+      <div class="filter-toolbar">
+        <label class="visually-hidden" for="userOrdersSearchInput">Search orders</label>
+        <input class="form-input filter-input" id="userOrdersSearchInput" type="search" placeholder="Search by order id, name, address, or item">
+      </div>
       <p class="order-message" id="userOrdersMessage" aria-live="polite"></p>
       <div class="orders-list" id="userOrdersList">
         <p class="menu-loading">Loading your orders...</p>

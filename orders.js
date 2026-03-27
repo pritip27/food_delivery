@@ -5,7 +5,9 @@ const userLatestStatus = document.getElementById("userLatestStatus");
 const userOrdersMessage = document.getElementById("userOrdersMessage");
 const refreshUserOrdersButton = document.getElementById("refreshUserOrdersButton");
 const ordersLogoutButton = document.getElementById("ordersLogoutButton");
+const userOrdersSearchInput = document.getElementById("userOrdersSearchInput");
 const refreshUserOrdersButtonLabel = refreshUserOrdersButton ? refreshUserOrdersButton.textContent : "";
+let userOrdersSearchDebounceId = null;
 
 function formatPrice(value) {
   return `Rs. ${value}`;
@@ -98,7 +100,15 @@ async function loadOrders() {
   setRefreshButtonState(true);
 
   try {
-    const orders = await apiRequest("/api/orders");
+    const searchParams = new URLSearchParams();
+    const search = userOrdersSearchInput ? userOrdersSearchInput.value.trim() : "";
+
+    if (search) {
+      searchParams.set("search", search);
+    }
+
+    const requestPath = searchParams.toString() ? `/api/orders?${searchParams.toString()}` : "/api/orders";
+    const orders = await apiRequest(requestPath);
     renderOrders(orders);
     setUserOrdersMessage(`Loaded ${orders.length} order${orders.length === 1 ? "" : "s"}.`, "success");
   } catch (error) {
@@ -116,6 +126,18 @@ async function loadOrders() {
 }
 
 refreshUserOrdersButton.addEventListener("click", loadOrders);
+
+if (userOrdersSearchInput) {
+  userOrdersSearchInput.addEventListener("input", () => {
+    if (userOrdersSearchDebounceId) {
+      window.clearTimeout(userOrdersSearchDebounceId);
+    }
+
+    userOrdersSearchDebounceId = window.setTimeout(() => {
+      loadOrders();
+    }, 250);
+  });
+}
 
 ordersLogoutButton.addEventListener("click", async () => {
   await logoutSession();
