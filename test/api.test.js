@@ -194,11 +194,8 @@ test("creates an order for a user and lets admin update the status", async () =>
         { id: "cold-coffee", quantity: 1 },
       ],
       payment: {
-        paymentMethod: "card",
-        cardholderName: "Integration Test User",
-        cardNumber: "4242424242424242",
-        expiryDate: "12/30",
-        cvv: "123",
+        paymentMethod: "upi",
+        upiId: "integrationtest@upi",
       },
     }),
   });
@@ -265,11 +262,8 @@ test("filters orders by search and status", async () => {
       deliveryAddress: "77 Search Lane, Bengaluru",
       items: [{ id: "burger-stack", quantity: 1 }],
       payment: {
-        paymentMethod: "card",
-        cardholderName: "Filter Target",
-        cardNumber: "4242424242424242",
-        expiryDate: "12/30",
-        cvv: "123",
+        paymentMethod: "upi",
+        upiId: "filtertarget@upi",
       },
     }),
   });

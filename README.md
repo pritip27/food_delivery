@@ -7,7 +7,7 @@ A small Node.js food ordering app with a static frontend, MongoDB storage, user 
 - Storefront with live cart updates
 - User registration and login
 - Admin login for order management
-- Card payment validation during checkout
+- UPI payment validation during checkout
 - Order history for signed-in users
 - Menu creation and deletion from the admin dashboard
 - MongoDB persistence for users, menu items, and orders
@@ -109,6 +109,6 @@ You can also create a new user account from `register.html`.
 
 - Sessions are stored in browser `localStorage` and validated against the server on page load.
 - Passwords are stored using PBKDF2 hashing.
-- Card details are validated for format and only the last four digits are saved with each order.
+- UPI IDs are validated for format and stored with each order payment record.
 - Run `npm run check` for a quick JavaScript syntax check across the app files.
 - The server seeds MongoDB collections from the JSON files only when the corresponding collection is empty.

@@ -387,106 +387,34 @@ async function getVisibleOrdersForSession(session, filters = {}) {
   return store.getVisibleOrdersForUser(session.user, filters);
 }
 
-function isValidCardNumber(cardNumber) {
-  let sum = 0;
-  let shouldDouble = false;
-
-  for (let index = cardNumber.length - 1; index >= 0; index -= 1) {
-    let digit = Number(cardNumber[index]);
-
-    if (shouldDouble) {
-      digit *= 2;
-
-      if (digit > 9) {
-        digit -= 9;
-      }
-    }
-
-    sum += digit;
-    shouldDouble = !shouldDouble;
-  }
-
-  return sum % 10 === 0;
-}
-
-function isValidExpiryDate(expiryDate) {
-  const match = /^(\d{2})\/(\d{2})$/.exec(expiryDate);
-
-  if (!match) {
-    return false;
-  }
-
-  const month = Number(match[1]);
-  const year = Number(match[2]) + 2000;
-
-  if (month < 1 || month > 12) {
-    return false;
-  }
-
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
-  const currentYear = now.getFullYear();
-
-  if (year < currentYear) {
-    return false;
-  }
-
-  if (year === currentYear && month < currentMonth) {
-    return false;
-  }
-
-  return true;
+function isValidUpiId(upiId) {
+  return /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$/.test(upiId);
 }
 
 function validatePayment(payment) {
   const paymentMethod = String(payment.paymentMethod || "").trim();
-  const cardholderName = String(payment.cardholderName || "").trim();
-  const cardNumber = String(payment.cardNumber || "").replace(/\s+/g, "");
-  const expiryDate = String(payment.expiryDate || "").trim();
-  const cvv = String(payment.cvv || "").trim();
+  const upiId = String(payment.upiId || "").trim().toLowerCase();
 
   if (!paymentMethod) {
     return { error: "Payment method is required." };
   }
 
-  if (paymentMethod !== "card") {
-    return { error: "Only card payments are supported right now." };
+  if (paymentMethod !== "upi") {
+    return { error: "Only UPI payments are supported right now." };
   }
 
-  if (!cardholderName) {
-    return { error: "Cardholder name is required." };
+  if (!upiId) {
+    return { error: "UPI ID is required." };
   }
 
-  if (cardholderName.length < 2) {
-    return { error: "Cardholder name must be at least 2 characters." };
-  }
-
-  if (!/^\d{16}$/.test(cardNumber)) {
-    return { error: "Card number must contain 16 digits." };
-  }
-
-  if (!isValidCardNumber(cardNumber)) {
-    return { error: "Card number appears invalid." };
-  }
-
-  if (!/^\d{2}\/\d{2}$/.test(expiryDate)) {
-    return { error: "Expiry date must use MM/YY format." };
-  }
-
-  if (!isValidExpiryDate(expiryDate)) {
-    return { error: "Card expiry date is invalid or already expired." };
-  }
-
-  if (!/^\d{3}$/.test(cvv)) {
-    return { error: "CVV must contain 3 digits." };
+  if (!isValidUpiId(upiId)) {
+    return { error: "UPI ID appears invalid." };
   }
 
   return {
     payment: {
       paymentMethod,
-      cardholderName,
-      cardLast4: cardNumber.slice(-4),
-      expiryDate,
+      upiId,
       paidAt: new Date().toISOString(),
       paymentStatus: "paid",
     },

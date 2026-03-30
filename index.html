@@ -147,25 +147,11 @@
 
               <label class="form-field" for="paymentMethod">Payment Method</label>
               <select class="form-input" id="paymentMethod" name="paymentMethod">
-                <option value="card">Credit or Debit Card</option>
+                <option value="upi">UPI</option>
               </select>
 
-              <label class="form-field" for="cardholderName">Cardholder Name</label>
-              <input class="form-input" id="cardholderName" name="cardholderName" type="text" placeholder="Name on card">
-
-              <label class="form-field" for="cardNumber">Card Number</label>
-              <input class="form-input" id="cardNumber" name="cardNumber" type="text" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456">
-
-              <div class="payment-grid">
-                <div>
-                  <label class="form-field" for="expiryDate">Expiry Date</label>
-                  <input class="form-input" id="expiryDate" name="expiryDate" type="text" inputmode="numeric" maxlength="5" placeholder="MM/YY">
-                </div>
-                <div>
-                  <label class="form-field" for="cvv">CVV</label>
-                  <input class="form-input" id="cvv" name="cvv" type="password" inputmode="numeric" maxlength="3" placeholder="123">
-                </div>
-              </div>
+              <label class="form-field" for="upiId">UPI ID</label>
+              <input class="form-input" id="upiId" name="upiId" type="text" placeholder="yourname@upi">
             </div>
 
             <p class="order-message" id="orderMessage" aria-live="polite"></p>

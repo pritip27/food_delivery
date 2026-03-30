@@ -80,7 +80,7 @@ function renderOrders(orders) {
               .join("")}
           </ul>
           <div class="order-payment-row">
-            <span>Paid by ${order.payment ? order.payment.paymentMethod : "card"} ending ${order.payment ? order.payment.cardLast4 : "----"}</span>
+            <span>Paid by ${order.payment ? String(order.payment.paymentMethod || "upi").toUpperCase() : "UPI"} via ${order.payment ? order.payment.upiId || "saved UPI" : "saved UPI"}</span>
             <strong>${formatPrice(order.total)}</strong>
           </div>
           <div class="order-card-bottom">

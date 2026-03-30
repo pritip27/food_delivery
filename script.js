@@ -15,11 +15,8 @@ const loginNavLink = document.getElementById("loginNavLink");
 const ordersNavLink = document.getElementById("ordersNavLink");
 const adminNavLink = document.getElementById("adminNavLink");
 const menuSearchInput = document.getElementById("menuSearchInput");
-const cardNumberInput = document.getElementById("cardNumber");
-const expiryDateInput = document.getElementById("expiryDate");
-const cvvInput = document.getElementById("cvv");
 const customerNameInput = document.getElementById("customerName");
-const cardholderNameInput = document.getElementById("cardholderName");
+const upiIdInput = document.getElementById("upiId");
 
 const cart = [];
 let menuItems = [];
@@ -171,9 +168,6 @@ function prefillCheckoutDetails() {
     customerNameInput.value = session.user.name || "";
   }
 
-  if (cardholderNameInput && !cardholderNameInput.value.trim()) {
-    cardholderNameInput.value = session.user.name || "";
-  }
 }
 
 function updateCheckoutAvailability() {
@@ -298,76 +292,12 @@ function updateCartItem(itemId, action) {
   renderCart();
 }
 
-function formatCardNumber(value) {
-  return value
-    .replace(/\D+/g, "")
-    .slice(0, 16)
-    .replace(/(\d{4})(?=\d)/g, "$1 ");
-}
-
-function formatExpiryDate(value) {
-  const digits = value.replace(/\D+/g, "").slice(0, 4);
-
-  if (digits.length < 3) {
-    return digits;
-  }
-
-  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-}
-
 function normalizePhone(value) {
   return String(value || "").replace(/\D+/g, "");
 }
 
-function isValidCardNumber(cardNumber) {
-  let sum = 0;
-  let shouldDouble = false;
-
-  for (let index = cardNumber.length - 1; index >= 0; index -= 1) {
-    let digit = Number(cardNumber[index]);
-
-    if (shouldDouble) {
-      digit *= 2;
-
-      if (digit > 9) {
-        digit -= 9;
-      }
-    }
-
-    sum += digit;
-    shouldDouble = !shouldDouble;
-  }
-
-  return sum % 10 === 0;
-}
-
-function isValidExpiryDate(expiryDate) {
-  const match = /^(\d{2})\/(\d{2})$/.exec(expiryDate);
-
-  if (!match) {
-    return false;
-  }
-
-  const month = Number(match[1]);
-  const year = Number(match[2]) + 2000;
-
-  if (month < 1 || month > 12) {
-    return false;
-  }
-
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
-  const currentYear = now.getFullYear();
-
-  if (year < currentYear) {
-    return false;
-  }
-
-  if (year === currentYear && month < currentMonth) {
-    return false;
-  }
-
-  return true;
+function isValidUpiId(upiId) {
+  return /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$/.test(upiId);
 }
 
 function getOrderPayload(formData) {
@@ -381,10 +311,7 @@ function getOrderPayload(formData) {
     })),
     payment: {
       paymentMethod: formData.get("paymentMethod"),
-      cardholderName: formData.get("cardholderName").trim(),
-      cardNumber: String(formData.get("cardNumber") || "").replace(/\s+/g, ""),
-      expiryDate: formData.get("expiryDate").trim(),
-      cvv: formData.get("cvv").trim(),
+      upiId: String(formData.get("upiId") || "").trim().toLowerCase(),
     },
   };
 }
@@ -410,26 +337,10 @@ function validateCheckoutPayload(payload) {
     errors.deliveryAddress = "Delivery address should be at least 10 characters.";
   }
 
-  if (!payload.payment.cardholderName) {
-    errors.cardholderName = "Cardholder name is required.";
-  } else if (payload.payment.cardholderName.length < 2) {
-    errors.cardholderName = "Cardholder name must be at least 2 characters.";
-  }
-
-  if (!/^\d{16}$/.test(payload.payment.cardNumber)) {
-    errors.cardNumber = "Card number must contain 16 digits.";
-  } else if (!isValidCardNumber(payload.payment.cardNumber)) {
-    errors.cardNumber = "Card number appears invalid. Please check and retry.";
-  }
-
-  if (!/^\d{2}\/\d{2}$/.test(payload.payment.expiryDate)) {
-    errors.expiryDate = "Expiry date must use MM/YY format.";
-  } else if (!isValidExpiryDate(payload.payment.expiryDate)) {
-    errors.expiryDate = "Card expiry date is invalid or already expired.";
-  }
-
-  if (!/^\d{3}$/.test(payload.payment.cvv)) {
-    errors.cvv = "CVV must contain 3 digits.";
+  if (!payload.payment.upiId) {
+    errors.upiId = "UPI ID is required.";
+  } else if (!isValidUpiId(payload.payment.upiId)) {
+    errors.upiId = "Enter a valid UPI ID like name@bank.";
   }
 
   return errors;
@@ -586,21 +497,9 @@ if (checkoutForm) {
   checkoutForm.addEventListener("submit", submitOrder);
 }
 
-if (cardNumberInput) {
-  cardNumberInput.addEventListener("input", () => {
-    cardNumberInput.value = formatCardNumber(cardNumberInput.value);
-  });
-}
-
-if (expiryDateInput) {
-  expiryDateInput.addEventListener("input", () => {
-    expiryDateInput.value = formatExpiryDate(expiryDateInput.value);
-  });
-}
-
-if (cvvInput) {
-  cvvInput.addEventListener("input", () => {
-    cvvInput.value = cvvInput.value.replace(/\D+/g, "").slice(0, 3);
+if (upiIdInput) {
+  upiIdInput.addEventListener("input", () => {
+    upiIdInput.value = upiIdInput.value.replace(/\s+/g, "").toLowerCase();
   });
 }
 
