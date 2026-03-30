@@ -122,13 +122,15 @@ function closePaymentToast() {
 function renderSessionBanner() {
   const session = getCurrentSession();
 
-  if (!session || !session.user || session.user.role !== "user") {
+  if (!session || !session.user) {
     sessionBanner.hidden = true;
     return;
   }
 
   sessionBanner.hidden = false;
-  sessionText.textContent = `Signed in as ${session.user.name}`;
+  const roleLabel = session.user.role === "admin" ? "Admin" : "User";
+  const displayName = session.user.name || session.user.email || roleLabel;
+  sessionText.textContent = `Signed in as ${displayName} (${roleLabel})`;
 }
 
 function syncNavigationForSession() {
@@ -175,14 +177,17 @@ function updateCheckoutAvailability() {
   const canCheckout = cart.length > 0 && session && session.user && session.user.role === "user";
   placeOrderButton.disabled = !canCheckout;
 
-  if (!session || !session.user || session.user.role !== "user") {
+  if (!session || !session.user) {
     setOrderMessage("Login as a user to complete payment and place orders.", "error");
     return;
   }
 
-  if (cart.length === 0) {
-    setOrderMessage("", null);
+  if (session.user.role !== "user") {
+    setOrderMessage("You are signed in as an admin. Logout and login as a user to place an order.", "error");
+    return;
   }
+
+  setOrderMessage("", null);
 }
 
 function renderMenu() {

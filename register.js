@@ -161,7 +161,10 @@ async function initializeRegisterPage() {
     return;
   }
 
-  window.location.href = session.user.role === "admin" ? "admin.html" : "index.html";
+  setRegisterMessage(
+    `You are already signed in as ${session.user.name}. You can still create another user account from here if you want.`,
+    "success"
+  );
 }
 
 initializeRegisterPage();

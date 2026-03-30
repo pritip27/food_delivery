@@ -696,6 +696,14 @@ h1 {
   gap: 12px;
 }
 
+.admin-form-actions,
+.menu-item-actions,
+.quick-order-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .auth-switch {
   margin: 16px 0 0;
   color: var(--muted);
@@ -777,6 +785,10 @@ h1 {
   border-top: 1px solid var(--border);
 }
 
+.quick-order-actions {
+  margin-bottom: 10px;
+}
+
 .status-editor-row {
   grid-template-columns: 1fr auto;
   align-items: center;
@@ -784,6 +796,11 @@ h1 {
 
 .status-save-button {
   width: auto;
+}
+
+.quick-reject-button {
+  border-color: rgba(198, 40, 40, 0.25);
+  color: var(--danger);
 }
 
 .refresh-button {

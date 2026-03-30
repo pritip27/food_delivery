@@ -504,7 +504,7 @@ async function createOrder(payload, session) {
 
 async function updateOrderStatus(orderId, status) {
   const normalizedStatus = String(status || "").trim().toLowerCase();
-  const allowedStatuses = ["received", "preparing", "out for delivery", "delivered"];
+  const allowedStatuses = ["received", "approved", "rejected", "preparing", "out for delivery", "delivered"];
 
   if (!allowedStatuses.includes(normalizedStatus)) {
     return { error: "Invalid order status." };
@@ -550,6 +550,42 @@ async function createMenuItem(payload) {
   };
 
   await store.insertMenuItem(menuItem);
+  return { menuItem };
+}
+
+async function updateMenuItem(menuItemId, payload) {
+  const name = String(payload.name || "").trim();
+  const category = String(payload.category || "").trim();
+  const description = String(payload.description || "").trim();
+  const price = Number(payload.price);
+
+  if (!name) {
+    return { error: "Dish name is required." };
+  }
+
+  if (!category) {
+    return { error: "Category is required." };
+  }
+
+  if (!description) {
+    return { error: "Description is required." };
+  }
+
+  if (!Number.isFinite(price) || price <= 0) {
+    return { error: "Price must be a number greater than 0." };
+  }
+
+  const menuItem = await store.updateMenuItem(menuItemId, {
+    name,
+    category,
+    price: Math.round(price),
+    description,
+  });
+
+  if (!menuItem) {
+    return { error: "Menu item not found." };
+  }
+
   return { menuItem };
 }
 
@@ -630,6 +666,36 @@ async function startServer() {
         }
 
         sendJson(response, 201, result.menuItem);
+        return;
+      } catch (error) {
+        sendJson(response, 400, { message: "Request body must be valid JSON." });
+        return;
+      }
+    }
+
+    if (request.method === "PATCH" && /^\/api\/menu\/[^/]+$/.test(pathname)) {
+      const session = await requireSession(request, response);
+
+      if (!session) {
+        return;
+      }
+
+      if (!requireRole(session, response, "admin")) {
+        return;
+      }
+
+      try {
+        const payload = await parseBody(request);
+        const menuItemId = pathname.split("/")[3];
+        const result = await updateMenuItem(menuItemId, payload);
+
+        if (result.error) {
+          const statusCode = result.error === "Menu item not found." ? 404 : 400;
+          sendJson(response, statusCode, { message: result.error });
+          return;
+        }
+
+        sendJson(response, 200, result.menuItem);
         return;
       } catch (error) {
         sendJson(response, 400, { message: "Request body must be valid JSON." });

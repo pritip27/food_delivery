@@ -198,7 +198,16 @@ async function initializeLoginPage() {
     return;
   }
 
-  window.location.href = getSafeRedirectPath(requestedRedirect, session.user.role);
+  const role = session.user.role === "admin" ? "admin" : "user";
+
+  if (roleInput) {
+    roleInput.value = role;
+  }
+
+  setLoginMessage(
+    `You are already signed in as ${session.user.name}. You can log in again here to switch accounts or continue to the ${role === "admin" ? "admin dashboard" : "storefront"}.`,
+    "success"
+  );
 }
 
 initializeLoginPage();

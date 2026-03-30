@@ -11,15 +11,18 @@ const adminOrdersSearchInput = document.getElementById("adminOrdersSearchInput")
 const adminOrderStatusFilter = document.getElementById("adminOrderStatusFilter");
 const menuForm = document.getElementById("menuForm");
 const menuItemsList = document.getElementById("menuItemsList");
+const cancelMenuEditButton = document.getElementById("cancelMenuEditButton");
 
-const allowedStatuses = ["received", "preparing", "out for delivery", "delivered"];
+const allowedStatuses = ["received", "approved", "rejected", "preparing", "out for delivery", "delivered"];
 const menuSubmitButton = document.getElementById("saveMenuItemButton");
 const menuSubmitButtonLabel = menuSubmitButton ? menuSubmitButton.textContent : "";
 const refreshOrdersButtonLabel = refreshOrdersButton ? refreshOrdersButton.textContent : "";
 const refreshMenuButtonLabel = refreshMenuButton ? refreshMenuButton.textContent : "";
 const savingOrderIds = new Set();
 const deletingMenuIds = new Set();
+const editingMenuIds = new Set();
 let adminOrdersSearchDebounceId = null;
+let editingMenuItemId = "";
 
 function formatPrice(value) {
   return `Rs. ${value}`;
@@ -116,7 +119,43 @@ function setMenuProcessingState(isProcessing) {
     element.disabled = isProcessing;
   });
 
-  menuSubmitButton.textContent = isProcessing ? "Adding dish..." : menuSubmitButtonLabel;
+  const idleLabel = editingMenuItemId ? "Save Changes" : menuSubmitButtonLabel;
+  menuSubmitButton.textContent = isProcessing ? (editingMenuItemId ? "Saving..." : "Adding dish...") : idleLabel;
+}
+
+function resetMenuForm() {
+  if (!menuForm) {
+    return;
+  }
+
+  menuForm.reset();
+  editingMenuItemId = "";
+  clearFieldErrors();
+  setMenuProcessingState(false);
+
+  if (cancelMenuEditButton) {
+    cancelMenuEditButton.hidden = true;
+  }
+}
+
+function populateMenuFormForEdit(menuItem) {
+  if (!menuForm) {
+    return;
+  }
+
+  editingMenuItemId = menuItem.id;
+  menuForm.elements.name.value = menuItem.name;
+  menuForm.elements.category.value = menuItem.category;
+  menuForm.elements.price.value = String(menuItem.price);
+  menuForm.elements.description.value = menuItem.description;
+  clearFieldErrors();
+  menuSubmitButton.textContent = "Save Changes";
+
+  if (cancelMenuEditButton) {
+    cancelMenuEditButton.hidden = false;
+  }
+
+  menuForm.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function setRefreshButtonState(button, isProcessing, busyLabel, defaultLabel) {
@@ -131,10 +170,15 @@ function setRefreshButtonState(button, isProcessing, busyLabel, defaultLabel) {
 function setOrderActionState(orderId, isProcessing) {
   const select = document.querySelector(`.status-select[data-order-id="${orderId}"]`);
   const button = document.querySelector(`[data-action="save-status"][data-order-id="${orderId}"]`);
+  const quickButtons = document.querySelectorAll(`[data-action="set-status"][data-order-id="${orderId}"]`);
 
   if (select) {
     select.disabled = isProcessing;
   }
+
+  quickButtons.forEach((quickButton) => {
+    quickButton.disabled = isProcessing;
+  });
 
   if (button) {
     button.disabled = isProcessing;
@@ -144,6 +188,7 @@ function setOrderActionState(orderId, isProcessing) {
 
 function setMenuDeleteState(menuItemId, isProcessing) {
   const button = document.querySelector(`[data-action="delete-menu-item"][data-menu-id="${menuItemId}"]`);
+  const editButton = document.querySelector(`[data-action="edit-menu-item"][data-menu-id="${menuItemId}"]`);
 
   if (!button) {
     return;
@@ -151,6 +196,26 @@ function setMenuDeleteState(menuItemId, isProcessing) {
 
   button.disabled = isProcessing;
   button.textContent = isProcessing ? "Deleting..." : "Delete";
+
+  if (editButton) {
+    editButton.disabled = isProcessing;
+  }
+}
+
+function setMenuEditState(menuItemId, isProcessing) {
+  const button = document.querySelector(`[data-action="edit-menu-item"][data-menu-id="${menuItemId}"]`);
+  const deleteButton = document.querySelector(`[data-action="delete-menu-item"][data-menu-id="${menuItemId}"]`);
+
+  if (!button) {
+    return;
+  }
+
+  button.disabled = isProcessing;
+  button.textContent = isProcessing ? "Opening..." : "Edit";
+
+  if (deleteButton) {
+    deleteButton.disabled = isProcessing;
+  }
 }
 
 function ensureAdminSession(session = getSession()) {
@@ -217,6 +282,10 @@ function renderOrders(orders) {
           </div>
           <div class="status-editor">
             <label class="form-field" for="status-${order.id}">Update Status</label>
+            <div class="quick-order-actions">
+              <button class="secondary-button" type="button" data-action="set-status" data-order-id="${order.id}" data-status="approved">Approve</button>
+              <button class="secondary-button quick-reject-button" type="button" data-action="set-status" data-order-id="${order.id}" data-status="rejected">Reject</button>
+            </div>
             <div class="status-editor-row">
               <select class="form-input status-select" id="status-${order.id}" data-order-id="${order.id}">
                 ${getStatusOptions(order.status)}
@@ -291,7 +360,10 @@ function renderMenuItems(menuItems) {
           <p class="order-meta">${item.description}</p>
           <div class="order-card-bottom">
             <span>${item.id}</span>
-            <button class="secondary-button status-save-button" type="button" data-action="delete-menu-item" data-menu-id="${item.id}">Delete</button>
+            <div class="menu-item-actions">
+              <button class="secondary-button status-save-button" type="button" data-action="edit-menu-item" data-menu-id="${item.id}">Edit</button>
+              <button class="secondary-button status-save-button" type="button" data-action="delete-menu-item" data-menu-id="${item.id}">Delete</button>
+            </div>
           </div>
         </article>
       `
@@ -364,9 +436,21 @@ async function saveOrderStatus(orderId) {
   }
 }
 
+async function setOrderStatus(orderId, nextStatus) {
+  const select = document.querySelector(`.status-select[data-order-id="${orderId}"]`);
+
+  if (!select) {
+    return;
+  }
+
+  select.value = nextStatus;
+  await saveOrderStatus(orderId);
+}
+
 async function createMenuItem(event) {
   event.preventDefault();
 
+  const isEditing = Boolean(editingMenuItemId);
   const formData = new FormData(menuForm);
   const payload = {
     name: String(formData.get("name") || "").trim(),
@@ -396,22 +480,63 @@ async function createMenuItem(event) {
   setMenuProcessingState(true);
 
   try {
-    const menuItem = await apiRequest("/api/menu", {
-      method: "POST",
+    const menuItem = await apiRequest(isEditing ? `/api/menu/${editingMenuItemId}` : "/api/menu", {
+      method: isEditing ? "PATCH" : "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
     });
 
-    menuForm.reset();
-    clearFieldErrors();
-    setMenuManagerMessage(`Added ${menuItem.name} to the menu.`, "success");
+    resetMenuForm();
+    setMenuManagerMessage(
+      isEditing ? `Updated ${menuItem.name} in the menu.` : `Added ${menuItem.name} to the menu.`,
+      "success"
+    );
     await loadMenuItems();
   } catch (error) {
     setMenuManagerMessage(error.message, "error");
   } finally {
-    setMenuProcessingState(false);
+    if (!isEditing) {
+      setMenuProcessingState(false);
+    } else {
+      menuSubmitButton.textContent = "Save Changes";
+      menuForm.querySelectorAll("input, textarea, button").forEach((element) => {
+        element.disabled = false;
+      });
+    }
+  }
+}
+
+async function beginMenuItemEdit(menuItemId) {
+  if (editingMenuIds.has(menuItemId)) {
+    return;
+  }
+
+  editingMenuIds.add(menuItemId);
+  setMenuEditState(menuItemId, true);
+
+  try {
+    const response = await fetch("/api/menu");
+
+    if (!response.ok) {
+      throw new Error("Unable to load the menu.");
+    }
+
+    const menuItems = await response.json();
+    const menuItem = menuItems.find((item) => item.id === menuItemId);
+
+    if (!menuItem) {
+      throw new Error("Menu item not found.");
+    }
+
+    populateMenuFormForEdit(menuItem);
+    setMenuManagerMessage(`Editing ${menuItem.name}. Update the fields and save your changes.`, "success");
+  } catch (error) {
+    setMenuManagerMessage(error.message, "error");
+  } finally {
+    editingMenuIds.delete(menuItemId);
+    setMenuEditState(menuItemId, false);
   }
 }
 
@@ -471,6 +596,13 @@ if (menuForm) {
 }
 
 ordersList.addEventListener("click", (event) => {
+  const quickActionButton = event.target.closest('[data-action="set-status"]');
+
+  if (quickActionButton) {
+    setOrderStatus(quickActionButton.dataset.orderId, quickActionButton.dataset.status);
+    return;
+  }
+
   const button = event.target.closest('[data-action="save-status"]');
 
   if (!button) {
@@ -481,6 +613,13 @@ ordersList.addEventListener("click", (event) => {
 });
 
 menuItemsList.addEventListener("click", (event) => {
+  const editButton = event.target.closest('[data-action="edit-menu-item"]');
+
+  if (editButton) {
+    beginMenuItemEdit(editButton.dataset.menuId);
+    return;
+  }
+
   const button = event.target.closest('[data-action="delete-menu-item"]');
 
   if (!button) {
@@ -489,6 +628,13 @@ menuItemsList.addEventListener("click", (event) => {
 
   deleteMenuItem(button.dataset.menuId);
 });
+
+if (cancelMenuEditButton) {
+  cancelMenuEditButton.addEventListener("click", () => {
+    resetMenuForm();
+    setMenuManagerMessage("Edit cancelled. You can add a new dish now.", null);
+  });
+}
 
 adminLogoutButton.addEventListener("click", async () => {
   await logoutSession();

@@ -53,6 +53,8 @@
         <select class="form-input filter-select" id="adminOrderStatusFilter">
           <option value="">All statuses</option>
           <option value="received">Received</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
           <option value="preparing">Preparing</option>
           <option value="out for delivery">Out for delivery</option>
           <option value="delivered">Delivered</option>
@@ -87,7 +89,10 @@
         <label class="form-field" for="menuItemDescription">Description</label>
         <textarea class="form-input form-textarea" id="menuItemDescription" name="description" placeholder="Enter dish description" required></textarea>
 
-        <button class="checkout-button admin-logout" id="saveMenuItemButton" type="submit">Add Dish</button>
+        <div class="admin-form-actions">
+          <button class="checkout-button admin-logout" id="saveMenuItemButton" type="submit">Add Dish</button>
+          <button class="secondary-button" id="cancelMenuEditButton" type="button" hidden>Cancel Edit</button>
+        </div>
       </form>
 
       <div class="orders-list" id="menuItemsList">

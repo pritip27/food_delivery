@@ -298,3 +298,128 @@ test("filters orders by search and status", async () => {
   assert.equal(filteredForAdmin.response.status, 200);
   assert.ok(filteredForAdmin.payload.some((order) => order.id === createOrder.payload.id));
 });
+
+test("lets admin edit menu items and approve or reject orders", async () => {
+  const adminLogin = await api("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: "admin@spiceroute.com",
+      password: "admin123",
+      role: "admin",
+    }),
+  });
+
+  const userLogin = await api("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: "user@spiceroute.com",
+      password: "user123",
+      role: "user",
+    }),
+  });
+
+  const menuUpdate = await api("/api/menu/paneer-bowl", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${adminLogin.payload.token}`,
+    },
+    body: JSON.stringify({
+      name: "Smoky Paneer Bowl Deluxe",
+      category: "Vegetarian Specials",
+      price: 289,
+      description: "Paneer tikka, saffron rice, mint yogurt, and roasted vegetables.",
+    }),
+  });
+
+  assert.equal(menuUpdate.response.status, 200);
+  assert.equal(menuUpdate.payload.name, "Smoky Paneer Bowl Deluxe");
+  assert.equal(menuUpdate.payload.price, 289);
+
+  const updatedMenu = await api("/api/menu?search=deluxe");
+  assert.equal(updatedMenu.response.status, 200);
+  assert.equal(updatedMenu.payload.length, 1);
+  assert.equal(updatedMenu.payload[0].id, "paneer-bowl");
+
+  const orderOne = await api("/api/orders", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${userLogin.payload.token}`,
+    },
+    body: JSON.stringify({
+      customerName: "Approval Target",
+      customerPhone: "9876501234",
+      deliveryAddress: "90 Admin Lane, Bengaluru",
+      items: [{ id: "paneer-bowl", quantity: 1 }],
+      payment: {
+        paymentMethod: "upi",
+        upiId: "approvetest@upi",
+      },
+    }),
+  });
+
+  const orderTwo = await api("/api/orders", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${userLogin.payload.token}`,
+    },
+    body: JSON.stringify({
+      customerName: "Reject Target",
+      customerPhone: "9876505678",
+      deliveryAddress: "91 Admin Lane, Bengaluru",
+      items: [{ id: "burger-stack", quantity: 1 }],
+      payment: {
+        paymentMethod: "upi",
+        upiId: "rejecttest@upi",
+      },
+    }),
+  });
+
+  const approveOrder = await api(`/api/orders/${orderOne.payload.id}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${adminLogin.payload.token}`,
+    },
+    body: JSON.stringify({
+      status: "approved",
+    }),
+  });
+
+  const rejectOrder = await api(`/api/orders/${orderTwo.payload.id}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${adminLogin.payload.token}`,
+    },
+    body: JSON.stringify({
+      status: "rejected",
+    }),
+  });
+
+  assert.equal(approveOrder.response.status, 200);
+  assert.equal(approveOrder.payload.status, "approved");
+  assert.equal(rejectOrder.response.status, 200);
+  assert.equal(rejectOrder.payload.status, "rejected");
+
+  const approvedOrders = await api("/api/orders?status=approved", {
+    headers: {
+      Authorization: `Bearer ${adminLogin.payload.token}`,
+    },
+  });
+
+  const rejectedOrders = await api("/api/orders?status=rejected", {
+    headers: {
+      Authorization: `Bearer ${adminLogin.payload.token}`,
+    },
+  });
+
+  assert.equal(approvedOrders.response.status, 200);
+  assert.ok(approvedOrders.payload.some((order) => order.id === orderOne.payload.id));
+  assert.equal(rejectedOrders.response.status, 200);
+  assert.ok(rejectedOrders.payload.some((order) => order.id === orderTwo.payload.id));
+});

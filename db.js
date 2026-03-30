@@ -156,6 +156,19 @@ async function initializeDatabase({ defaultUsers, defaultMenuItems }) {
       await menuItems.insertOne({ ...menuItem });
       return menuItem;
     },
+    async updateMenuItem(menuItemId, updates) {
+      const updated = await menuItems.findOneAndUpdate(
+        { id: menuItemId },
+        {
+          $set: {
+            ...updates,
+          },
+        },
+        { returnDocument: "after" }
+      );
+
+      return withoutMongoId(updated);
+    },
     async deleteMenuItem(menuItemId) {
       const deleted = await menuItems.findOneAndDelete({ id: menuItemId });
       return withoutMongoId(deleted);
