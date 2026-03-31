@@ -1,45 +1,139 @@
 [
   {
-    "id": "paneer-bowl",
-    "name": "Smoky Paneer Bowl",
-    "category": "Vegetarian",
-    "price": 249,
-    "description": "Paneer tikka, saffron rice, greens, mint yogurt."
+    "id": "masala-tea",
+    "name": "Masala Tea",
+    "category": "Beverages",
+    "price": 40,
+    "description": "Hot Indian chai brewed with milk, tea leaves, ginger, and spices.",
+    "image": "assets/menu/items/masala-tea.svg"
   },
   {
-    "id": "burger-stack",
-    "name": "Zesty Burger Stack",
-    "category": "Fast Food",
-    "price": 199,
-    "description": "Double patty, spicy sauce, cheddar, crisp lettuce."
+    "id": "masala-maggi",
+    "name": "Masala Maggi",
+    "category": "Snacks",
+    "price": 79,
+    "description": "Street-style Maggi noodles tossed with vegetables and house masala.",
+    "image": "assets/menu/items/masala-maggi.svg"
   },
   {
-    "id": "alfredo-pasta",
-    "name": "Creamy Alfredo Pasta",
-    "category": "Pasta",
-    "price": 229,
-    "description": "Silky white sauce, herbs, garlic toast, parmesan."
+    "id": "french-fries",
+    "name": "French Fries",
+    "category": "Snacks",
+    "price": 99,
+    "description": "Golden crispy fries served hot with ketchup and peri peri seasoning.",
+    "image": "assets/menu/items/french-fries.svg"
   },
   {
-    "id": "tandoori-pizza",
-    "name": "Tandoori Pizza Slice",
-    "category": "Fusion",
-    "price": 279,
-    "description": "Spiced topping, mozzarella, peppers, onion crunch."
-  },
-  {
-    "id": "loaded-fries",
-    "name": "Loaded Fries Box",
+    "id": "loaded-french-fries",
+    "name": "Loaded French Fries",
     "category": "Snacks",
     "price": 149,
-    "description": "Crispy fries, smoky mayo, jalapeno, cheese drizzle."
+    "description": "Crispy fries topped with cheese sauce, mayo, herbs, and spice mix.",
+    "image": "assets/menu/items/loaded-french-fries.svg"
   },
   {
-    "id": "cold-coffee",
-    "name": "Cold Coffee Float",
-    "category": "Drinks",
+    "id": "masala-puri",
+    "name": "Masala Puri",
+    "category": "Chaat",
+    "price": 89,
+    "description": "Crushed puri topped with ragda, chutneys, sev, and fresh onions.",
+    "image": "assets/menu/items/masala-puri.svg"
+  },
+  {
+    "id": "pani-puri",
+    "name": "Pani Puri",
+    "category": "Chaat",
+    "price": 69,
+    "description": "Crisp puris filled with spicy mint water, potato, and tangy chutney.",
+    "image": "assets/menu/items/pani-puri.svg"
+  },
+  {
+    "id": "dahi-puri",
+    "name": "Dahi Puri",
+    "category": "Chaat",
+    "price": 79,
+    "description": "Puris layered with curd, chutneys, masala, sev, and pomegranate.",
+    "image": "assets/menu/items/dahi-puri.svg"
+  },
+  {
+    "id": "veg-burger",
+    "name": "Veg Burger",
+    "category": "Burgers",
     "price": 119,
-    "description": "Rich cold coffee, vanilla cream, cocoa dust."
+    "description": "Soft burger bun with crispy veg patty, lettuce, and burger sauce.",
+    "image": "assets/menu/items/veg-burger.svg"
+  },
+  {
+    "id": "chicken-burger",
+    "name": "Chicken Burger",
+    "category": "Burgers",
+    "price": 149,
+    "description": "Juicy chicken patty burger with mayo, onion, and crunchy lettuce.",
+    "image": "assets/menu/items/chicken-burger.svg"
+  },
+  {
+    "id": "shawarma",
+    "name": "Chicken Shawarma",
+    "category": "Wraps",
+    "price": 139,
+    "description": "Soft wrap filled with spiced chicken, cabbage, and creamy garlic sauce.",
+    "image": "assets/menu/items/chicken-shawarma.svg"
+  },
+  {
+    "id": "large-shawarma",
+    "name": "Large Shawarma",
+    "category": "Wraps",
+    "price": 189,
+    "description": "Extra large shawarma packed with chicken, veggies, and garlic mayo.",
+    "image": "assets/menu/items/large-shawarma.svg"
+  },
+  {
+    "id": "chicken-biryani",
+    "name": "Chicken Biryani",
+    "category": "Indian Main Course",
+    "price": 229,
+    "description": "Fragrant basmati rice cooked with chicken, spices, and biryani masala.",
+    "image": "assets/menu/items/chicken-biryani.svg"
+  },
+  {
+    "id": "mutton-biryani",
+    "name": "Mutton Biryani",
+    "category": "Indian Main Course",
+    "price": 289,
+    "description": "Aromatic basmati rice layered with tender mutton and rich biryani spices.",
+    "image": "assets/menu/items/mutton-biryani.svg"
+  },
+  {
+    "id": "lime-soda",
+    "name": "Lime Soda",
+    "category": "Beverages",
+    "price": 59,
+    "description": "Refreshing lime soda with a fizzy finish and a touch of black salt.",
+    "image": "assets/menu/items/lime-soda.svg"
+  },
+  {
+    "id": "chocolate-milkshake",
+    "name": "Chocolate Milkshake",
+    "category": "Beverages",
+    "price": 109,
+    "description": "Creamy chocolate milkshake blended smooth and topped with chocolate drizzle.",
+    "image": "assets/menu/items/chocolate-milkshake.svg"
+  },
+  {
+    "id": "vanilla-milkshake",
+    "name": "Vanilla Milkshake",
+    "category": "Beverages",
+    "price": 99,
+    "description": "Classic vanilla milkshake made rich, chilled, and extra creamy.",
+    "image": "assets/menu/items/vanilla-milkshake.svg"
+  },
+  {
+    "id": "blue-mojito",
+    "name": "Blue Mojito",
+    "category": "Beverages",
+    "price": 119,
+    "description": "Cool blue mojito with mint, lemon, and sparkling soda.",
+    "image": "assets/menu/items/blue-mojito.svg"
   }
 ]
 

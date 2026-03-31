@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">Snacks illustration</title>
+  <desc id="desc">A stylized serving of fries and noodles on a warm background.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff5df"/>
+      <stop offset="100%" stop-color="#ffd5b5"/>
+    </linearGradient>
+    <linearGradient id="fries" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffd865"/>
+      <stop offset="100%" stop-color="#e18b1f"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="36" fill="url(#bg)"/>
+  <circle cx="118" cy="96" r="56" fill="#ffeeb6" opacity="0.65"/>
+  <circle cx="534" cy="82" r="66" fill="#ffd8bd" opacity="0.7"/>
+  <ellipse cx="318" cy="358" rx="220" ry="26" fill="#d7b9a0" opacity="0.34"/>
+  <path d="M158 168h182l-22 138c-4 22-22 38-44 38h-52c-24 0-44-18-48-42z" fill="#c7392f"/>
+  <rect x="176" y="112" width="18" height="112" rx="9" fill="url(#fries)" transform="rotate(-10 176 112)"/>
+  <rect x="204" y="98" width="18" height="130" rx="9" fill="url(#fries)" transform="rotate(-2 204 98)"/>
+  <rect x="234" y="104" width="18" height="124" rx="9" fill="url(#fries)" transform="rotate(7 234 104)"/>
+  <rect x="264" y="96" width="18" height="128" rx="9" fill="url(#fries)" transform="rotate(-5 264 96)"/>
+  <rect x="292" y="114" width="18" height="108" rx="9" fill="url(#fries)" transform="rotate(9 292 114)"/>
+  <path d="M376 248c0-74 58-124 122-124 58 0 108 40 108 100 0 70-60 120-122 120-68 0-108-44-108-96z" fill="#f4f0dc"/>
+  <path d="M404 238c34-42 102-42 150 0" stroke="#c78b42" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <path d="M414 254c34-36 92-36 130 0" stroke="#d79b4f" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <path d="M428 272c28-30 78-30 106 0" stroke="#e1af61" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <circle cx="454" cy="214" r="8" fill="#5aa34d"/>
+  <circle cx="486" cy="202" r="8" fill="#d94e38"/>
+  <circle cx="520" cy="216" r="8" fill="#5aa34d"/>
+</svg>

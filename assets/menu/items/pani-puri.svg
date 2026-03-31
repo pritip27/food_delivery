@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
+  <rect width="640" height="420" rx="36" fill="#fff4e3"/>
+  <circle cx="108" cy="92" r="58" fill="#ffe4aa"/>
+  <circle cx="536" cy="82" r="64" fill="#ffd7c0"/>
+  <ellipse cx="320" cy="356" rx="210" ry="24" fill="#d3b194" opacity="0.26"/>
+  <circle cx="220" cy="224" r="54" fill="#d8a252"/>
+  <circle cx="320" cy="202" r="56" fill="#d59c49"/>
+  <circle cx="420" cy="224" r="54" fill="#d8a252"/>
+  <circle cx="220" cy="214" r="14" fill="#5ba74f"/>
+  <circle cx="320" cy="192" r="14" fill="#5ba74f"/>
+  <circle cx="420" cy="214" r="14" fill="#5ba74f"/>
+  <text x="320" y="332" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="36" font-weight="800" fill="#7d491e">Pani Puri</text>
+</svg>

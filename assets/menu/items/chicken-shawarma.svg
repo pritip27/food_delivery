@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
+  <rect width="640" height="420" rx="36" fill="#fff4e6"/>
+  <circle cx="110" cy="88" r="58" fill="#ffe3b3"/>
+  <circle cx="534" cy="84" r="62" fill="#ffd7c4"/>
+  <ellipse cx="320" cy="358" rx="210" ry="24" fill="#d2b39b" opacity="0.25"/>
+  <g transform="translate(160 92) rotate(-8 160 110)">
+    <rect x="72" y="44" width="232" height="150" rx="30" fill="#f2dfbe"/>
+    <rect x="102" y="72" width="174" height="96" rx="24" fill="#8f5434"/>
+    <path d="M104 88c34-14 70-14 104 2 26 12 44 12 72 2" stroke="#68b157" stroke-width="16" stroke-linecap="round"/>
+    <path d="M104 116c38 12 88 12 126 0 24-8 38-8 60 2" stroke="#f2d15d" stroke-width="16" stroke-linecap="round"/>
+    <path d="M110 142c30 12 64 12 94 0 34-12 54-10 90 6" stroke="#ffffff" stroke-width="18" stroke-linecap="round" opacity="0.72"/>
+    <path d="M78 56l46 148" stroke="#e6d0aa" stroke-width="28" stroke-linecap="round"/>
+  </g>
+  <text x="320" y="336" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="30" font-weight="800" fill="#77411a">Chicken Shawarma</text>
+</svg>

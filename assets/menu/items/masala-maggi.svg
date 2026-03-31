@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
+  <rect width="640" height="420" rx="36" fill="#fff0dc"/>
+  <circle cx="98" cy="92" r="56" fill="#ffe3a8"/>
+  <circle cx="546" cy="86" r="60" fill="#ffd6b9"/>
+  <ellipse cx="320" cy="356" rx="214" ry="24" fill="#d3b28f" opacity="0.26"/>
+  <ellipse cx="320" cy="228" rx="152" ry="60" fill="#f0f2e8"/>
+  <path d="M208 220c34-36 190-36 224 0" stroke="#d29a3f" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <path d="M196 242c46-36 202-36 248 0" stroke="#e3b258" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <path d="M210 264c40-28 180-28 220 0" stroke="#efc670" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <circle cx="236" cy="198" r="8" fill="#4ea24f"/>
+  <circle cx="396" cy="204" r="8" fill="#d64b39"/>
+  <text x="320" y="330" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="34" font-weight="800" fill="#8b541f">Masala Maggi</text>
+</svg>

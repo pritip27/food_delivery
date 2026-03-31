@@ -94,17 +94,19 @@ test("loads seeded menu items", async () => {
 
   assert.equal(response.status, 200);
   assert.ok(Array.isArray(payload));
-  assert.equal(payload.length, 6);
-  assert.ok(payload.some((item) => item.id === "paneer-bowl"));
-  assert.ok(payload.some((item) => item.id === "cold-coffee"));
+  assert.equal(payload.length, 17);
+  assert.ok(payload.some((item) => item.id === "chicken-biryani"));
+  assert.ok(payload.some((item) => item.id === "blue-mojito"));
+  assert.ok(payload.some((item) => item.image === "assets/menu/items/chicken-biryani.svg"));
 });
 
 test("filters menu items by search text", async () => {
-  const { response, payload } = await api("/api/menu?search=coffee");
+  const { response, payload } = await api("/api/menu?search=milkshake");
 
   assert.equal(response.status, 200);
-  assert.equal(payload.length, 1);
-  assert.equal(payload[0].id, "cold-coffee");
+  assert.equal(payload.length, 2);
+  assert.ok(payload.some((item) => item.id === "chocolate-milkshake"));
+  assert.ok(payload.some((item) => item.id === "vanilla-milkshake"));
 });
 
 test("allows seeded user login and session lookup", async () => {
@@ -190,8 +192,8 @@ test("creates an order for a user and lets admin update the status", async () =>
       customerPhone: "9876543210",
       deliveryAddress: "42 Test Street, Bengaluru",
       items: [
-        { id: "paneer-bowl", quantity: 2 },
-        { id: "cold-coffee", quantity: 1 },
+        { id: "chicken-biryani", quantity: 2 },
+        { id: "blue-mojito", quantity: 1 },
       ],
       payment: {
         paymentMethod: "upi",
@@ -202,7 +204,7 @@ test("creates an order for a user and lets admin update the status", async () =>
 
   assert.equal(createOrder.response.status, 201);
   assert.equal(createOrder.payload.status, "received");
-  assert.equal(createOrder.payload.total, 617);
+  assert.equal(createOrder.payload.total, 577);
 
   const userOrders = await api("/api/orders", {
     headers: {
@@ -260,7 +262,7 @@ test("filters orders by search and status", async () => {
       customerName: "Filter Target",
       customerPhone: "9998887776",
       deliveryAddress: "77 Search Lane, Bengaluru",
-      items: [{ id: "burger-stack", quantity: 1 }],
+      items: [{ id: "chicken-burger", quantity: 1 }],
       payment: {
         paymentMethod: "upi",
         upiId: "filtertarget@upi",
@@ -289,7 +291,7 @@ test("filters orders by search and status", async () => {
   assert.equal(filteredForUser.payload.length, 1);
   assert.equal(filteredForUser.payload[0].customerName, "Filter Target");
 
-  const filteredForAdmin = await api("/api/orders?status=delivered&search=burger", {
+  const filteredForAdmin = await api("/api/orders?status=delivered&search=chicken", {
     headers: {
       Authorization: `Bearer ${adminLogin.payload.token}`,
     },
@@ -320,28 +322,30 @@ test("lets admin edit menu items and approve or reject orders", async () => {
     }),
   });
 
-  const menuUpdate = await api("/api/menu/paneer-bowl", {
+  const menuUpdate = await api("/api/menu/chicken-biryani", {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${adminLogin.payload.token}`,
     },
     body: JSON.stringify({
-      name: "Smoky Paneer Bowl Deluxe",
-      category: "Vegetarian Specials",
+      name: "Chicken Biryani Royale",
+      category: "Signature Main Course",
       price: 289,
-      description: "Paneer tikka, saffron rice, mint yogurt, and roasted vegetables.",
+      description: "Dum biryani layered with tender chicken, saffron rice, and slow-cooked spices.",
+      image: "assets/menu/items/chicken-biryani.svg",
     }),
   });
 
   assert.equal(menuUpdate.response.status, 200);
-  assert.equal(menuUpdate.payload.name, "Smoky Paneer Bowl Deluxe");
+  assert.equal(menuUpdate.payload.name, "Chicken Biryani Royale");
   assert.equal(menuUpdate.payload.price, 289);
+  assert.equal(menuUpdate.payload.image, "assets/menu/items/chicken-biryani.svg");
 
-  const updatedMenu = await api("/api/menu?search=deluxe");
+  const updatedMenu = await api("/api/menu?search=royale");
   assert.equal(updatedMenu.response.status, 200);
   assert.equal(updatedMenu.payload.length, 1);
-  assert.equal(updatedMenu.payload[0].id, "paneer-bowl");
+  assert.equal(updatedMenu.payload[0].id, "chicken-biryani");
 
   const orderOne = await api("/api/orders", {
     method: "POST",
@@ -353,7 +357,7 @@ test("lets admin edit menu items and approve or reject orders", async () => {
       customerName: "Approval Target",
       customerPhone: "9876501234",
       deliveryAddress: "90 Admin Lane, Bengaluru",
-      items: [{ id: "paneer-bowl", quantity: 1 }],
+      items: [{ id: "chicken-biryani", quantity: 1 }],
       payment: {
         paymentMethod: "upi",
         upiId: "approvetest@upi",
@@ -371,7 +375,7 @@ test("lets admin edit menu items and approve or reject orders", async () => {
       customerName: "Reject Target",
       customerPhone: "9876505678",
       deliveryAddress: "91 Admin Lane, Bengaluru",
-      items: [{ id: "burger-stack", quantity: 1 }],
+      items: [{ id: "chicken-burger", quantity: 1 }],
       payment: {
         paymentMethod: "upi",
         upiId: "rejecttest@upi",
@@ -422,4 +426,40 @@ test("lets admin edit menu items and approve or reject orders", async () => {
   assert.ok(approvedOrders.payload.some((order) => order.id === orderOne.payload.id));
   assert.equal(rejectedOrders.response.status, 200);
   assert.ok(rejectedOrders.payload.some((order) => order.id === orderTwo.payload.id));
+});
+
+test("lets admin create a menu item with an image path", async () => {
+  const adminLogin = await api("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: "admin@spiceroute.com",
+      password: "admin123",
+      role: "admin",
+    }),
+  });
+
+  const createMenuItem = await api("/api/menu", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${adminLogin.payload.token}`,
+    },
+    body: JSON.stringify({
+      name: "Paneer Roll",
+      category: "Wraps",
+      price: 159,
+      description: "Soft roll packed with paneer tikka, onions, and mint mayo.",
+      image: "assets/menu/items/chicken-shawarma.svg",
+    }),
+  });
+
+  assert.equal(createMenuItem.response.status, 201);
+  assert.equal(createMenuItem.payload.id, "paneer-roll");
+  assert.equal(createMenuItem.payload.image, "assets/menu/items/chicken-shawarma.svg");
+
+  const menuLookup = await api("/api/menu?search=paneer%20roll");
+  assert.equal(menuLookup.response.status, 200);
+  assert.equal(menuLookup.payload.length, 1);
+  assert.equal(menuLookup.payload[0].image, "assets/menu/items/chicken-shawarma.svg");
 });

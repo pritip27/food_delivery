@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">Wraps illustration</title>
+  <desc id="desc">A stylized shawarma wrap cut open to show filling.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff7eb"/>
+      <stop offset="100%" stop-color="#ffd9c2"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="36" fill="url(#bg)"/>
+  <circle cx="126" cy="82" r="60" fill="#ffe9bc" opacity="0.72"/>
+  <circle cx="536" cy="88" r="62" fill="#ffd1c8" opacity="0.7"/>
+  <ellipse cx="320" cy="356" rx="220" ry="24" fill="#d0b197" opacity="0.26"/>
+  <g transform="translate(144 84) rotate(-8 178 126)">
+    <path d="M120 46h200c20 0 36 16 36 36v92c0 20-16 36-36 36H120c-20 0-36-16-36-36V82c0-20 16-36 36-36z" fill="#f3e0bf"/>
+    <path d="M146 72h148c16 0 30 12 30 28v54c0 16-14 28-30 28H146c-16 0-30-12-30-28v-54c0-16 14-28 30-28z" fill="#8c4d2f"/>
+    <path d="M134 86c34-12 48-12 82 4 28 14 42 14 72 2 18-8 34-8 58 2" stroke="#69b458" stroke-width="16" stroke-linecap="round"/>
+    <path d="M138 110c40 18 76 18 112 0 28-14 56-14 92 0" stroke="#f5d35f" stroke-width="16" stroke-linecap="round"/>
+    <path d="M136 136c34 12 56 12 88 0 32-12 66-12 112 6" stroke="#ffffff" stroke-width="18" stroke-linecap="round" opacity="0.75"/>
+    <path d="M108 54l44 170" stroke="#e6d0ab" stroke-width="26" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -52,12 +52,12 @@
       </div>
 
       <div class="hero-card">
-        <p class="card-label">Today's best seller</p>
-        <h2>Smoky Paneer Bowl</h2>
-        <p class="card-text">Charred paneer, saffron rice, pickled onion, mint yogurt.</p>
+        <p class="card-label" id="heroCardLabel">Today's best seller</p>
+        <h2 id="heroCardTitle">Loading special...</h2>
+        <p class="card-text" id="heroCardText">We are fetching the latest crowd favorite from the menu.</p>
         <div class="hero-price-row">
-          <span class="price">Rs. 249</span>
-          <span class="rating">4.8 rating</span>
+          <span class="price" id="heroCardPrice">Rs. --</span>
+          <span class="rating" id="heroCardMeta">Chef-picked special</span>
         </div>
       </div>
     </section>
@@ -82,20 +82,11 @@
     <section class="featured-section" id="featured">
       <div class="section-heading">
         <p class="eyebrow">Featured picks</p>
-        <h2>Built for hungry people who hate cluttered ordering screens.</h2>
+        <h2 id="featuredHeading">Crowd favorites worth ordering first.</h2>
       </div>
-      <div class="feature-grid">
+      <div class="feature-grid" id="featuredGrid">
         <article class="feature-card">
-          <h3>Quick browsing</h3>
-          <p>Scan meals, prices, and categories without jumping across pages.</p>
-        </article>
-        <article class="feature-card">
-          <h3>Instant cart updates</h3>
-          <p>Add dishes with one tap and keep totals visible the whole time.</p>
-        </article>
-        <article class="feature-card">
-          <h3>Fully connected</h3>
-          <p>Login, payment, and live order APIs are already wired into the storefront.</p>
+          <p class="menu-loading">Loading featured dishes...</p>
         </article>
       </div>
     </section>
@@ -103,12 +94,13 @@
     <section class="menu-section" id="menu">
       <div class="section-heading">
         <p class="eyebrow">Popular menu</p>
-        <h2>Choose your favorites</h2>
+        <h2>Choose your favorites by category</h2>
       </div>
 
       <div class="filter-toolbar">
         <label class="visually-hidden" for="menuSearchInput">Search menu</label>
         <input class="form-input filter-input" id="menuSearchInput" type="search" placeholder="Search dishes, categories, or ingredients">
+        <div class="category-chip-row" id="categoryFilters" aria-label="Menu categories"></div>
       </div>
 
       <div class="menu-layout">

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">Beverages illustration</title>
+  <desc id="desc">A stylized illustration of colorful beverages with mint and citrus.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff7e8"/>
+      <stop offset="100%" stop-color="#d8f6ff"/>
+    </linearGradient>
+    <linearGradient id="glassA" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7fd7ff"/>
+      <stop offset="100%" stop-color="#2b8acb"/>
+    </linearGradient>
+    <linearGradient id="glassB" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8e7b2"/>
+      <stop offset="100%" stop-color="#9e6f2e"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="36" fill="url(#bg)"/>
+  <circle cx="126" cy="92" r="54" fill="#fff1bf" opacity="0.7"/>
+  <circle cx="548" cy="94" r="62" fill="#c6f4ff" opacity="0.8"/>
+  <ellipse cx="320" cy="360" rx="210" ry="28" fill="#d9c8b2" opacity="0.35"/>
+  <rect x="176" y="112" width="122" height="180" rx="24" fill="#ffffff" opacity="0.72"/>
+  <rect x="186" y="134" width="102" height="146" rx="18" fill="url(#glassB)"/>
+  <rect x="334" y="96" width="132" height="196" rx="28" fill="#ffffff" opacity="0.72"/>
+  <rect x="346" y="118" width="108" height="162" rx="20" fill="url(#glassA)"/>
+  <path d="M242 104l-8 38" stroke="#8a5a2e" stroke-width="8" stroke-linecap="round"/>
+  <path d="M410 88l34 48" stroke="#3a6f8d" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="206" cy="154" r="12" fill="#fff0df" opacity="0.45"/>
+  <circle cx="232" cy="184" r="10" fill="#fff0df" opacity="0.35"/>
+  <circle cx="384" cy="154" r="14" fill="#dff8ff" opacity="0.5"/>
+  <circle cx="430" cy="194" r="11" fill="#dff8ff" opacity="0.35"/>
+  <circle cx="474" cy="132" r="22" fill="none" stroke="#f4d85f" stroke-width="10"/>
+  <circle cx="162" cy="114" r="20" fill="none" stroke="#a4db68" stroke-width="10"/>
+  <path d="M146 108c16-28 42-30 58-10-26-2-36 10-42 26-8-2-12-8-16-16z" fill="#4f9d4b"/>
+  <path d="M410 54c30 4 44 24 44 48-24-6-38-16-52-40 2-6 4-8 8-8z" fill="#54b16e"/>
+</svg>

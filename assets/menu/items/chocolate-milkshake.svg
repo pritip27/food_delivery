@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
+  <rect width="640" height="420" rx="36" fill="#fff2e9"/>
+  <circle cx="110" cy="90" r="56" fill="#ffe1bd"/>
+  <circle cx="538" cy="86" r="62" fill="#ffd8ca"/>
+  <ellipse cx="320" cy="358" rx="210" ry="24" fill="#cdb09a" opacity="0.24"/>
+  <rect x="236" y="98" width="168" height="190" rx="28" fill="#ffffff" opacity="0.72"/>
+  <rect x="250" y="116" width="140" height="156" rx="20" fill="#8d5736"/>
+  <path d="M254 140c32-12 104-12 136 0" stroke="#a66a44" stroke-width="10" stroke-linecap="round"/>
+  <path d="M244 106c42-28 110-20 148 0-10 20-22 32-44 36h-58c-20 0-34-10-46-36z" fill="#fbf0ec"/>
+  <path d="M390 102l28 42" stroke="#84553a" stroke-width="8" stroke-linecap="round"/>
+  <text x="320" y="332" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="30" font-weight="800" fill="#6f4126">Chocolate Milkshake</text>
+</svg>

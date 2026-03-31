@@ -348,8 +348,37 @@ h1 {
   padding: 20px;
 }
 
+.feature-menu-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.feature-menu-image-wrap {
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(31, 122, 61, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(251, 243, 233, 0.94));
+}
+
+.feature-menu-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.feature-menu-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+}
+
 .feature-card h3,
-.menu-card h3 {
+.menu-card h3,
+.menu-card h4 {
   margin-bottom: 8px;
   font-size: 1.08rem;
 }
@@ -363,12 +392,75 @@ h1 {
 
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.menu-category-section {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 26px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.menu-category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(31, 122, 61, 0.12);
+}
+
+.menu-category-header h3 {
+  margin: 0;
+}
+
+.menu-category-kicker {
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--accent-dark);
+}
+
+.menu-category-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(240, 138, 36, 0.14);
+  color: var(--accent-dark);
+  font-weight: 800;
+  font-size: 0.78rem;
+}
+
+.menu-category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
 
 .menu-card {
   padding: 18px;
+}
+
+.menu-card-image-wrap {
+  margin-bottom: 14px;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(31, 122, 61, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(251, 243, 233, 0.94));
+}
+
+.menu-card-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
 }
 
 .menu-tag {
@@ -439,6 +531,35 @@ h1 {
   display: grid;
   gap: 10px;
   margin-bottom: 18px;
+}
+
+.category-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.category-chip {
+  border: 1px solid rgba(31, 122, 61, 0.16);
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.category-chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(31, 122, 61, 0.36);
+}
+
+.category-chip.is-active {
+  background: linear-gradient(135deg, var(--accent), #f7b15b);
+  border-color: transparent;
+  color: #fffaf4;
 }
 
 .filter-toolbar-split {
@@ -772,6 +893,40 @@ h1 {
   gap: 10px;
 }
 
+.admin-menu-item-preview {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.admin-menu-item-image-wrap {
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(31, 122, 61, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(251, 243, 233, 0.92));
+}
+
+.admin-menu-item-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.admin-menu-item-copy h3,
+.admin-menu-item-copy .order-id,
+.admin-menu-item-copy .order-meta {
+  margin-top: 0;
+}
+
+.admin-menu-image-path {
+  max-width: 100%;
+  color: var(--muted);
+  font-size: 0.82rem;
+  word-break: break-all;
+}
+
 .order-payment-row {
   grid-template-columns: 1fr auto;
   align-items: center;
@@ -883,6 +1038,10 @@ h1 {
     grid-template-columns: 1fr;
   }
 
+  .menu-category-grid {
+    grid-template-columns: 1fr;
+  }
+
   .cart-panel {
     position: static;
   }
@@ -927,6 +1086,16 @@ h1 {
     border-radius: 18px;
   }
 
+  .menu-category-section {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .menu-category-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   h1 {
     font-size: 1.8rem;
   }
@@ -955,5 +1124,9 @@ h1 {
   .order-card-bottom {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .admin-menu-item-preview {
+    grid-template-columns: 1fr;
   }
 }

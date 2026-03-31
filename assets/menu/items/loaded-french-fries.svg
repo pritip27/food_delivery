@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
+  <rect width="640" height="420" rx="36" fill="#fff0df"/>
+  <circle cx="106" cy="92" r="56" fill="#ffe3aa"/>
+  <circle cx="538" cy="84" r="62" fill="#ffd2bb"/>
+  <ellipse cx="320" cy="358" rx="214" ry="24" fill="#d2b69d" opacity="0.24"/>
+  <path d="M210 186h220l-22 124c-4 20-20 34-40 34h-96c-20 0-36-14-40-34z" fill="#b8322d"/>
+  <rect x="236" y="108" width="20" height="114" rx="10" fill="#f6ca4e" transform="rotate(-7 236 108)"/>
+  <rect x="272" y="96" width="20" height="128" rx="10" fill="#ffd560" transform="rotate(-2 272 96)"/>
+  <rect x="308" y="102" width="20" height="122" rx="10" fill="#f8c94c" transform="rotate(7 308 102)"/>
+  <rect x="344" y="94" width="20" height="130" rx="10" fill="#ffd85f" transform="rotate(-5 344 94)"/>
+  <rect x="380" y="110" width="20" height="112" rx="10" fill="#f4c245" transform="rotate(10 380 110)"/>
+  <path d="M236 206c34 10 136 10 168 0" stroke="#fff0c0" stroke-width="14" stroke-linecap="round"/>
+  <path d="M244 224c30 12 118 12 152 0" stroke="#f3dd72" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="268" cy="200" r="7" fill="#4ea24f"/>
+  <circle cx="338" cy="194" r="7" fill="#4ea24f"/>
+  <text x="320" y="332" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="30" font-weight="800" fill="#843f18">Loaded Fries</text>
+</svg>

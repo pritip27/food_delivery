@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
+  <rect width="640" height="420" rx="36" fill="#fff5e8"/>
+  <circle cx="112" cy="88" r="56" fill="#ffe7ae"/>
+  <circle cx="534" cy="88" r="62" fill="#ffd8c6"/>
+  <ellipse cx="320" cy="356" rx="210" ry="24" fill="#d6b79c" opacity="0.26"/>
+  <ellipse cx="320" cy="234" rx="154" ry="58" fill="#d49a55"/>
+  <path d="M180 234c18 76 74 118 140 118s122-42 140-118z" fill="#eef3f8"/>
+  <path d="M212 204c34 20 170 20 216 0" stroke="#6aaa4b" stroke-width="14" stroke-linecap="round"/>
+  <path d="M216 184c36 16 160 16 208 0" stroke="#8c3b28" stroke-width="16" stroke-linecap="round"/>
+  <path d="M224 226c38 10 150 10 188 0" stroke="#f2bf45" stroke-width="12" stroke-linecap="round"/>
+  <text x="320" y="332" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="34" font-weight="800" fill="#7f471c">Masala Puri</text>
+</svg>

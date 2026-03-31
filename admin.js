@@ -107,6 +107,10 @@ function validateMenuPayload(payload) {
     errors.menuItemDescription = "Description must be at least 10 characters.";
   }
 
+  if (payload.image && !/^assets\/[\w./-]+\.(svg|png|jpe?g|webp|gif)$/i.test(payload.image)) {
+    errors.menuItemImage = "Use a valid local asset path like assets/menu/items/dish.svg.";
+  }
+
   return errors;
 }
 
@@ -148,6 +152,7 @@ function populateMenuFormForEdit(menuItem) {
   menuForm.elements.category.value = menuItem.category;
   menuForm.elements.price.value = String(menuItem.price);
   menuForm.elements.description.value = menuItem.description;
+  menuForm.elements.image.value = menuItem.image || "";
   clearFieldErrors();
   menuSubmitButton.textContent = "Save Changes";
 
@@ -350,14 +355,20 @@ function renderMenuItems(menuItems) {
     .map(
       (item) => `
         <article class="order-card">
-          <div class="order-card-top">
-            <div>
+          <div class="admin-menu-item-preview">
+            <div class="admin-menu-item-image-wrap">
+              <img class="admin-menu-item-image" src="${item.image || "assets/menu/snacks.svg"}" alt="${item.name}">
+            </div>
+            <div class="admin-menu-item-copy">
               <p class="order-id">${item.category}</p>
               <h3>${item.name}</h3>
+              <p class="order-meta">${item.description}</p>
             </div>
+          </div>
+          <div class="order-card-top">
+            <span class="admin-menu-image-path">${item.image || "No image path set"}</span>
             <span class="order-status">${formatPrice(item.price)}</span>
           </div>
-          <p class="order-meta">${item.description}</p>
           <div class="order-card-bottom">
             <span>${item.id}</span>
             <div class="menu-item-actions">
@@ -457,6 +468,7 @@ async function createMenuItem(event) {
     category: String(formData.get("category") || "").trim(),
     price: Number(formData.get("price") || 0),
     description: String(formData.get("description") || "").trim(),
+    image: String(formData.get("image") || "").trim(),
   };
   const fieldErrors = validateMenuPayload(payload);
 

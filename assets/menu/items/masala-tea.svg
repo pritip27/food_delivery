@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
+  <rect width="640" height="420" rx="36" fill="#fff3e3"/>
+  <circle cx="104" cy="88" r="54" fill="#ffe0b0"/>
+  <circle cx="548" cy="82" r="62" fill="#ffd2c1"/>
+  <ellipse cx="320" cy="356" rx="210" ry="24" fill="#d2b49a" opacity="0.28"/>
+  <rect x="212" y="120" width="162" height="144" rx="24" fill="#f4d8b8"/>
+  <rect x="226" y="132" width="134" height="118" rx="18" fill="#9b6336"/>
+  <path d="M374 154c28 0 46 18 46 44s-18 44-46 44" fill="none" stroke="#f4d8b8" stroke-width="16"/>
+  <path d="M284 94c-12-24 10-44 28-54-2 18 4 30 14 42" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+  <text x="320" y="330" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="34" font-weight="800" fill="#73431f">Masala Tea</text>
+</svg>

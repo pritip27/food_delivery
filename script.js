@@ -15,18 +15,106 @@ const loginNavLink = document.getElementById("loginNavLink");
 const ordersNavLink = document.getElementById("ordersNavLink");
 const adminNavLink = document.getElementById("adminNavLink");
 const menuSearchInput = document.getElementById("menuSearchInput");
+const categoryFilters = document.getElementById("categoryFilters");
 const customerNameInput = document.getElementById("customerName");
 const upiIdInput = document.getElementById("upiId");
+const heroCardLabel = document.getElementById("heroCardLabel");
+const heroCardTitle = document.getElementById("heroCardTitle");
+const heroCardText = document.getElementById("heroCardText");
+const heroCardPrice = document.getElementById("heroCardPrice");
+const heroCardMeta = document.getElementById("heroCardMeta");
+const featuredHeading = document.getElementById("featuredHeading");
+const featuredGrid = document.getElementById("featuredGrid");
 
 const cart = [];
 let menuItems = [];
 let paymentToastTimerId = null;
 let menuSearchDebounceId = null;
+let selectedCategory = "";
 const checkoutInputElements = checkoutForm ? Array.from(checkoutForm.querySelectorAll("input, textarea, select, button")) : [];
 const checkoutSubmitLabel = placeOrderButton ? placeOrderButton.textContent : "";
+const categoryDisplayOrder = ["Chaat", "Snacks", "Burgers", "Wraps", "Indian Main Course", "Beverages"];
+const featuredHeroIds = ["chicken-biryani", "mutton-biryani", "chicken-shawarma", "chicken-burger"];
+const featuredMenuIds = ["chicken-biryani", "chicken-shawarma", "blue-mojito", "chicken-burger", "loaded-french-fries"];
+const CART_STORAGE_KEY = "spiceRouteCart";
+const MENU_FILTERS_STORAGE_KEY = "spiceRouteMenuFilters";
 
 function formatPrice(value) {
   return `Rs. ${value}`;
+}
+
+function readLocalStorage(key, fallbackValue) {
+  try {
+    const rawValue = localStorage.getItem(key);
+    return rawValue ? JSON.parse(rawValue) : fallbackValue;
+  } catch (error) {
+    return fallbackValue;
+  }
+}
+
+function writeLocalStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    // Ignore storage failures so storefront actions still work.
+  }
+}
+
+function persistCart() {
+  writeLocalStorage(CART_STORAGE_KEY, cart);
+}
+
+function persistMenuFilters() {
+  writeLocalStorage(MENU_FILTERS_STORAGE_KEY, {
+    search: menuSearchInput ? menuSearchInput.value.trim() : "",
+    category: selectedCategory,
+  });
+}
+
+function restoreMenuFilters() {
+  const savedFilters = readLocalStorage(MENU_FILTERS_STORAGE_KEY, {});
+
+  if (menuSearchInput && typeof savedFilters.search === "string") {
+    menuSearchInput.value = savedFilters.search;
+  }
+
+  if (typeof savedFilters.category === "string") {
+    selectedCategory = savedFilters.category;
+  }
+}
+
+function restoreCart() {
+  const savedCart = readLocalStorage(CART_STORAGE_KEY, []);
+
+  if (!Array.isArray(savedCart)) {
+    return;
+  }
+
+  cart.length = 0;
+
+  savedCart.forEach((item) => {
+    const quantity = Number(item.quantity);
+    const price = Number(item.price);
+
+    if (!item || typeof item.id !== "string" || typeof item.name !== "string") {
+      return;
+    }
+
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
+      return;
+    }
+
+    if (!Number.isFinite(price) || price <= 0) {
+      return;
+    }
+
+    cart.push({
+      id: item.id,
+      name: item.name,
+      price,
+      quantity,
+    });
+  });
 }
 
 function getCurrentSession() {
@@ -190,24 +278,209 @@ function updateCheckoutAvailability() {
   setOrderMessage("", null);
 }
 
+function groupMenuItemsByCategory(items) {
+  const groupedItems = items.reduce((groups, item) => {
+    const category = item.category || "Menu";
+
+    if (!groups.has(category)) {
+      groups.set(category, []);
+    }
+
+    groups.get(category).push(item);
+    return groups;
+  }, new Map());
+
+  return Array.from(groupedItems.entries()).sort(([leftCategory], [rightCategory]) => {
+    const leftIndex = categoryDisplayOrder.indexOf(leftCategory);
+    const rightIndex = categoryDisplayOrder.indexOf(rightCategory);
+    const normalizedLeftIndex = leftIndex === -1 ? Number.MAX_SAFE_INTEGER : leftIndex;
+    const normalizedRightIndex = rightIndex === -1 ? Number.MAX_SAFE_INTEGER : rightIndex;
+
+    if (normalizedLeftIndex !== normalizedRightIndex) {
+      return normalizedLeftIndex - normalizedRightIndex;
+    }
+
+    return leftCategory.localeCompare(rightCategory);
+  });
+}
+
+function getSortedCategories(items) {
+  return groupMenuItemsByCategory(items).map(([category]) => category);
+}
+
+function renderCategoryFilters(items) {
+  if (!categoryFilters) {
+    return;
+  }
+
+  const categories = getSortedCategories(items);
+
+  if (!selectedCategory || !categories.includes(selectedCategory)) {
+    selectedCategory = "";
+  }
+
+  categoryFilters.innerHTML = [
+    `<button class="category-chip ${selectedCategory === "" ? "is-active" : ""}" type="button" data-category="">All</button>`,
+    ...categories.map(
+      (category) =>
+        `<button class="category-chip ${selectedCategory === category ? "is-active" : ""}" type="button" data-category="${category}">${category}</button>`
+    ),
+  ].join("");
+
+  persistMenuFilters();
+}
+
+function getVisibleMenuItems() {
+  if (!selectedCategory) {
+    return menuItems;
+  }
+
+  return menuItems.filter((item) => item.category === selectedCategory);
+}
+
+function getHeroMenuItem(items) {
+  if (items.length === 0) {
+    return null;
+  }
+
+  const featuredItem = featuredHeroIds
+    .map((id) => items.find((item) => item.id === id))
+    .find(Boolean);
+
+  if (featuredItem) {
+    return featuredItem;
+  }
+
+  return [...items].sort((left, right) => Number(right.price || 0) - Number(left.price || 0))[0];
+}
+
+function renderHeroCard(items) {
+  if (!heroCardTitle || !heroCardText || !heroCardPrice || !heroCardMeta || !heroCardLabel) {
+    return;
+  }
+
+  const heroItem = getHeroMenuItem(items);
+
+  if (!heroItem) {
+    heroCardLabel.textContent = "Today's special";
+    heroCardTitle.textContent = "Menu coming soon";
+    heroCardText.textContent = "We are preparing fresh dishes for the next service window.";
+    heroCardPrice.textContent = "Rs. --";
+    heroCardMeta.textContent = "Check back shortly";
+    return;
+  }
+
+  heroCardLabel.textContent = `${heroItem.category} spotlight`;
+  heroCardTitle.textContent = heroItem.name;
+  heroCardText.textContent = heroItem.description;
+  heroCardPrice.textContent = formatPrice(heroItem.price);
+  heroCardMeta.textContent = `${heroItem.category} favorite`;
+}
+
+function getFeaturedMenuItems(items) {
+  const prioritizedItems = featuredMenuIds
+    .map((id) => items.find((item) => item.id === id))
+    .filter(Boolean);
+
+  const uniqueFeaturedItems = prioritizedItems.filter(
+    (item, index, list) => list.findIndex((entry) => entry.id === item.id) === index
+  );
+
+  if (uniqueFeaturedItems.length >= 3) {
+    return uniqueFeaturedItems.slice(0, 3);
+  }
+
+  const fallbackItems = [...items]
+    .sort((left, right) => Number(right.price || 0) - Number(left.price || 0))
+    .filter((item) => !uniqueFeaturedItems.some((entry) => entry.id === item.id));
+
+  return [...uniqueFeaturedItems, ...fallbackItems].slice(0, 3);
+}
+
+function renderFeaturedItems(items) {
+  if (!featuredGrid || !featuredHeading) {
+    return;
+  }
+
+  const featuredItems = getFeaturedMenuItems(items);
+
+  if (featuredItems.length === 0) {
+    featuredHeading.textContent = "Fresh specials are on the way.";
+    featuredGrid.innerHTML = `
+      <article class="feature-card">
+        <h3>Menu refresh in progress</h3>
+        <p>We are preparing a new featured lineup for the next ordering window.</p>
+      </article>
+    `;
+    return;
+  }
+
+  const featuredCategories = Array.from(new Set(featuredItems.map((item) => item.category)));
+  featuredHeading.textContent =
+    featuredCategories.length > 1
+      ? `Top picks across ${featuredCategories.join(", ")}.`
+      : `Top picks from ${featuredCategories[0]}.`;
+
+  featuredGrid.innerHTML = featuredItems
+    .map(
+      (item) => `
+        <article class="feature-card feature-menu-card" data-featured-id="${item.id}">
+          <div class="feature-menu-image-wrap">
+            <img class="feature-menu-image" src="${item.image || "assets/menu/snacks.svg"}" alt="${item.name}">
+          </div>
+          <span class="menu-tag">${item.category}</span>
+          <h3>${item.name}</h3>
+          <p>${item.description}</p>
+          <div class="feature-menu-footer">
+            <span class="price">${formatPrice(item.price)}</span>
+            <button class="add-button" type="button" data-action="add-featured-item" data-featured-id="${item.id}">Add</button>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+}
+
 function renderMenu() {
-  if (menuItems.length === 0) {
+  const visibleMenuItems = getVisibleMenuItems();
+
+  if (visibleMenuItems.length === 0) {
     menuGrid.innerHTML = '<p class="menu-error">No menu items available right now.</p>';
     return;
   }
 
-  menuGrid.innerHTML = menuItems
+  menuGrid.innerHTML = groupMenuItemsByCategory(visibleMenuItems)
     .map(
-      (item) => `
-        <article class="menu-card" data-id="${item.id}">
-          <span class="menu-tag">${item.category}</span>
-          <h3>${item.name}</h3>
-          <p>${item.description}</p>
-          <div class="menu-footer">
-            <span class="price">${formatPrice(item.price)}</span>
-            <button class="add-button" type="button">Add</button>
+      ([category, items]) => `
+        <section class="menu-category-section" aria-label="${category}">
+          <div class="menu-category-header">
+            <div>
+              <p class="menu-category-kicker">Menu Section</p>
+              <h3>${category}</h3>
+            </div>
+            <span class="menu-category-count">${items.length} item${items.length === 1 ? "" : "s"}</span>
           </div>
-        </article>
+          <div class="menu-category-grid">
+            ${items
+              .map(
+                (item) => `
+                  <article class="menu-card" data-id="${item.id}">
+                    <div class="menu-card-image-wrap">
+                      <img class="menu-card-image" src="${item.image || "assets/menu/snacks.svg"}" alt="${item.name}">
+                    </div>
+                    <span class="menu-tag">${item.category}</span>
+                    <h4>${item.name}</h4>
+                    <p>${item.description}</p>
+                    <div class="menu-footer">
+                      <span class="price">${formatPrice(item.price)}</span>
+                      <button class="add-button" type="button">Add</button>
+                    </div>
+                  </article>
+                `
+              )
+              .join("")}
+          </div>
+        </section>
       `
     )
     .join("");
@@ -251,6 +524,7 @@ function renderCart() {
 
   itemCountElement.textContent = String(totalItems);
   totalPriceElement.textContent = formatPrice(totalPrice);
+  persistCart();
   updateCheckoutAvailability();
 }
 
@@ -407,6 +681,7 @@ async function submitOrder(event) {
     cart.length = 0;
     renderCart();
     checkoutForm.reset();
+    persistCart();
     clearFieldErrors();
     setOrderMessage(`Order placed successfully. Your order id is ${result.id}.`, "success");
     showPaymentToast(result);
@@ -441,6 +716,18 @@ async function loadMenu() {
     }
 
     menuItems = await response.json();
+    const availableItemIds = new Set(menuItems.map((item) => item.id));
+    const nextCart = cart.filter((item) => availableItemIds.has(item.id));
+
+    if (nextCart.length !== cart.length) {
+      cart.length = 0;
+      cart.push(...nextCart);
+      renderCart();
+    }
+
+    renderHeroCard(menuItems);
+    renderFeaturedItems(menuItems);
+    renderCategoryFilters(menuItems);
     renderMenu();
   } catch (error) {
     menuGrid.innerHTML = '<p class="menu-error">Unable to load the menu. Please try again.</p>';
@@ -461,6 +748,22 @@ menuGrid.addEventListener("click", (event) => {
     addToCart(selectedItem);
   }
 });
+
+if (featuredGrid) {
+  featuredGrid.addEventListener("click", (event) => {
+    const button = event.target.closest('[data-action="add-featured-item"]');
+
+    if (!button) {
+      return;
+    }
+
+    const selectedItem = menuItems.find((item) => item.id === button.dataset.featuredId);
+
+    if (selectedItem) {
+      addToCart(selectedItem);
+    }
+  });
+}
 
 cartItemsContainer.addEventListener("click", (event) => {
   const button = event.target.closest("[data-action]");
@@ -526,6 +829,9 @@ if (checkoutForm) {
 
 if (menuSearchInput) {
   menuSearchInput.addEventListener("input", () => {
+    selectedCategory = "";
+    persistMenuFilters();
+
     if (menuSearchDebounceId) {
       window.clearTimeout(menuSearchDebounceId);
     }
@@ -536,7 +842,23 @@ if (menuSearchInput) {
   });
 }
 
+if (categoryFilters) {
+  categoryFilters.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-category]");
+
+    if (!button) {
+      return;
+    }
+
+    selectedCategory = button.dataset.category || "";
+    renderCategoryFilters(menuItems);
+    renderMenu();
+  });
+}
+
 closePaymentToast();
+restoreCart();
+restoreMenuFilters();
 renderCart();
 updateCheckoutAvailability();
 
