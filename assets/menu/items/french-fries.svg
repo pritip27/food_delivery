@@ -1,13 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
-  <rect width="640" height="420" rx="36" fill="#fff3df"/>
-  <circle cx="110" cy="96" r="58" fill="#ffe0a6"/>
-  <circle cx="534" cy="88" r="64" fill="#ffd5b5"/>
-  <ellipse cx="320" cy="356" rx="210" ry="24" fill="#d6b89c" opacity="0.25"/>
-  <path d="M214 182h212l-22 126c-4 20-20 34-40 34h-88c-20 0-36-14-40-34z" fill="#ca3b31"/>
-  <rect x="236" y="102" width="20" height="122" rx="10" fill="#f8c84d" transform="rotate(-8 236 102)"/>
-  <rect x="272" y="94" width="20" height="132" rx="10" fill="#ffd560" transform="rotate(-2 272 94)"/>
-  <rect x="308" y="98" width="20" height="126" rx="10" fill="#f5c246" transform="rotate(6 308 98)"/>
-  <rect x="344" y="92" width="20" height="132" rx="10" fill="#ffd45d" transform="rotate(-4 344 92)"/>
-  <rect x="378" y="108" width="20" height="116" rx="10" fill="#f2bc40" transform="rotate(9 378 108)"/>
-  <text x="320" y="330" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="34" font-weight="800" fill="#8b4e18">French Fries</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">French Fries illustration</title>
+  <desc id="desc">A carton of golden French fries on a warm background.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff6e7"/>
+      <stop offset="100%" stop-color="#ffd4b4"/>
+    </linearGradient>
+    <linearGradient id="fries" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffd86a"/>
+      <stop offset="100%" stop-color="#dc8a20"/>
+    </linearGradient>
+    <linearGradient id="box" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#cf4035"/>
+      <stop offset="100%" stop-color="#98231f"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="36" fill="url(#bg)"/>
+  <circle cx="110" cy="88" r="58" fill="#ffe7b8" opacity="0.8"/>
+  <circle cx="530" cy="84" r="68" fill="#ffd6bf" opacity="0.72"/>
+  <ellipse cx="320" cy="356" rx="214" ry="24" fill="#bc9f86" opacity="0.24"/>
+  <path d="M206 176h228l-24 132c-6 30-30 52-60 52H290c-32 0-56-22-62-54z" fill="url(#box)"/>
+  <g fill="url(#fries)">
+    <rect x="226" y="92" width="20" height="138" rx="10" transform="rotate(-8 226 92)"/>
+    <rect x="256" y="84" width="20" height="146" rx="10" transform="rotate(-2 256 84)"/>
+    <rect x="288" y="90" width="20" height="140" rx="10" transform="rotate(6 288 90)"/>
+    <rect x="320" y="80" width="20" height="150" rx="10" transform="rotate(-4 320 80)"/>
+    <rect x="352" y="94" width="20" height="136" rx="10" transform="rotate(8 352 94)"/>
+    <rect x="384" y="102" width="20" height="128" rx="10" transform="rotate(-10 384 102)"/>
+  </g>
+  <text x="320" y="340" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="31" font-weight="800" fill="#7c4319">French Fries</text>
 </svg>

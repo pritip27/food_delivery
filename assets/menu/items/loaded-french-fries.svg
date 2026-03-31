@@ -1,17 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
-  <rect width="640" height="420" rx="36" fill="#fff0df"/>
-  <circle cx="106" cy="92" r="56" fill="#ffe3aa"/>
-  <circle cx="538" cy="84" r="62" fill="#ffd2bb"/>
-  <ellipse cx="320" cy="358" rx="214" ry="24" fill="#d2b69d" opacity="0.24"/>
-  <path d="M210 186h220l-22 124c-4 20-20 34-40 34h-96c-20 0-36-14-40-34z" fill="#b8322d"/>
-  <rect x="236" y="108" width="20" height="114" rx="10" fill="#f6ca4e" transform="rotate(-7 236 108)"/>
-  <rect x="272" y="96" width="20" height="128" rx="10" fill="#ffd560" transform="rotate(-2 272 96)"/>
-  <rect x="308" y="102" width="20" height="122" rx="10" fill="#f8c94c" transform="rotate(7 308 102)"/>
-  <rect x="344" y="94" width="20" height="130" rx="10" fill="#ffd85f" transform="rotate(-5 344 94)"/>
-  <rect x="380" y="110" width="20" height="112" rx="10" fill="#f4c245" transform="rotate(10 380 110)"/>
-  <path d="M236 206c34 10 136 10 168 0" stroke="#fff0c0" stroke-width="14" stroke-linecap="round"/>
-  <path d="M244 224c30 12 118 12 152 0" stroke="#f3dd72" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="268" cy="200" r="7" fill="#4ea24f"/>
-  <circle cx="338" cy="194" r="7" fill="#4ea24f"/>
-  <text x="320" y="332" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="30" font-weight="800" fill="#843f18">Loaded Fries</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">Loaded French Fries illustration</title>
+  <desc id="desc">A tray of loaded fries topped with cheese, sauce, and herbs.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff7e6"/>
+      <stop offset="100%" stop-color="#ffd3b4"/>
+    </linearGradient>
+    <linearGradient id="fries" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffd96d"/>
+      <stop offset="100%" stop-color="#d88a20"/>
+    </linearGradient>
+    <linearGradient id="tray" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c84036"/>
+      <stop offset="100%" stop-color="#8f1f1a"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="36" fill="url(#bg)"/>
+  <circle cx="110" cy="90" r="58" fill="#ffe9b8" opacity="0.78"/>
+  <circle cx="532" cy="82" r="68" fill="#ffd5c0" opacity="0.72"/>
+  <ellipse cx="320" cy="356" rx="216" ry="24" fill="#b99a82" opacity="0.25"/>
+  <path d="M176 186h288l-34 130c-8 28-34 48-64 48H274c-32 0-58-22-64-52z" fill="url(#tray)"/>
+  <g fill="url(#fries)">
+    <rect x="208" y="96" width="20" height="140" rx="10" transform="rotate(-10 208 96)"/>
+    <rect x="238" y="86" width="20" height="150" rx="10" transform="rotate(-3 238 86)"/>
+    <rect x="270" y="92" width="20" height="144" rx="10" transform="rotate(8 270 92)"/>
+    <rect x="304" y="82" width="20" height="154" rx="10" transform="rotate(-4 304 82)"/>
+    <rect x="336" y="98" width="20" height="138" rx="10" transform="rotate(7 336 98)"/>
+    <rect x="370" y="92" width="20" height="144" rx="10" transform="rotate(-8 370 92)"/>
+    <rect x="402" y="106" width="20" height="130" rx="10" transform="rotate(10 402 106)"/>
+  </g>
+  <path d="M214 188c36 24 64 36 106 36 50 0 82-10 128-38" stroke="#f8d46d" stroke-width="12" stroke-linecap="round"/>
+  <path d="M224 202c42 0 86 20 192 0" stroke="#fff2c4" stroke-width="10" stroke-linecap="round" opacity="0.72"/>
+  <path d="M220 216c48 8 118 8 200-2" stroke="#f1bf43" stroke-width="10" stroke-linecap="round"/>
+  <g fill="#f5efe5">
+    <path d="M252 208c26 0 36 20 60 20s34-20 58-20 32 20 56 20 32-20 50-20" opacity="0.9"/>
+  </g>
+  <g fill="#5ea949">
+    <circle cx="248" cy="194" r="6"/>
+    <circle cx="292" cy="222" r="6"/>
+    <circle cx="350" cy="198" r="6"/>
+    <circle cx="404" cy="214" r="6"/>
+  </g>
+  <text x="320" y="338" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="29" font-weight="800" fill="#7a4017">Loaded French Fries</text>
 </svg>

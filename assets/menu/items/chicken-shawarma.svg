@@ -1,15 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
-  <rect width="640" height="420" rx="36" fill="#fff4e6"/>
-  <circle cx="110" cy="88" r="58" fill="#ffe3b3"/>
-  <circle cx="534" cy="84" r="62" fill="#ffd7c4"/>
-  <ellipse cx="320" cy="358" rx="210" ry="24" fill="#d2b39b" opacity="0.25"/>
-  <g transform="translate(160 92) rotate(-8 160 110)">
-    <rect x="72" y="44" width="232" height="150" rx="30" fill="#f2dfbe"/>
-    <rect x="102" y="72" width="174" height="96" rx="24" fill="#8f5434"/>
-    <path d="M104 88c34-14 70-14 104 2 26 12 44 12 72 2" stroke="#68b157" stroke-width="16" stroke-linecap="round"/>
-    <path d="M104 116c38 12 88 12 126 0 24-8 38-8 60 2" stroke="#f2d15d" stroke-width="16" stroke-linecap="round"/>
-    <path d="M110 142c30 12 64 12 94 0 34-12 54-10 90 6" stroke="#ffffff" stroke-width="18" stroke-linecap="round" opacity="0.72"/>
-    <path d="M78 56l46 148" stroke="#e6d0aa" stroke-width="28" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">Chicken Shawarma illustration</title>
+  <desc id="desc">A grilled chicken shawarma wrap with crisp vegetables and sauce.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff8ee"/>
+      <stop offset="100%" stop-color="#ffd8bf"/>
+    </linearGradient>
+    <linearGradient id="wrap" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f4d39f"/>
+      <stop offset="100%" stop-color="#d7a15e"/>
+    </linearGradient>
+    <linearGradient id="fill" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#93532f"/>
+      <stop offset="100%" stop-color="#c16b2d"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="36" fill="url(#bg)"/>
+  <circle cx="112" cy="88" r="56" fill="#ffecbf" opacity="0.76"/>
+  <circle cx="526" cy="86" r="66" fill="#ffd8c8" opacity="0.74"/>
+  <ellipse cx="320" cy="356" rx="214" ry="24" fill="#b89a83" opacity="0.24"/>
+  <g transform="translate(122 42) rotate(12 198 150)">
+    <path d="M150 70c30-22 108-20 146 18l18 18c34 34 40 96 16 142l-26 52-128-26-72-72c-34-34-32-88 4-118z" fill="url(#wrap)"/>
+    <path d="M174 104c28-18 84-12 118 22l18 20c24 28 28 66 10 102l-18 38-104-22-56-58c-24-24-20-74 8-102z" fill="#f6e4bf"/>
+    <path d="M186 120c30-10 76 2 100 30l14 16c16 18 22 42 18 68l-90-18-62-64c2-12 8-24 20-32z" fill="url(#fill)"/>
+    <path d="M176 160c18 10 42 16 64 16 28 0 54-8 78-20" stroke="#7ec25a" stroke-width="10" stroke-linecap="round"/>
+    <path d="M186 178c16 8 36 12 56 12 26 0 48-6 70-16" stroke="#ffffff" stroke-width="8" stroke-linecap="round" opacity="0.7"/>
+    <circle cx="258" cy="132" r="8" fill="#d74d37"/>
+    <circle cx="284" cy="154" r="8" fill="#d74d37"/>
   </g>
-  <text x="320" y="336" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="30" font-weight="800" fill="#77411a">Chicken Shawarma</text>
+  <text x="320" y="386" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="31" font-weight="800" fill="#7d441f">Chicken Shawarma</text>
 </svg>

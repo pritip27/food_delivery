@@ -13,6 +13,7 @@ const API_WINDOW_MS = 1000 * 60 * 15;
 const API_WINDOW_LIMIT = 300;
 const AUTH_WINDOW_MS = 1000 * 60 * 15;
 const AUTH_WINDOW_LIMIT = 12;
+const MAX_REMOTE_IMAGE_BYTES = 1024 * 1024 * 2;
 
 const rateLimits = new Map();
 
@@ -516,10 +517,64 @@ function validatePayment(payment) {
 }
 
 function isValidImageValue(image) {
+  const isRemoteImageUrl = isRemoteImageValue(image);
+
   return (
     /^assets\/[\w./-]+\.(svg|png|jpe?g|webp|gif)$/i.test(image) ||
+    isRemoteImageUrl ||
     /^data:image\/(?:png|jpeg|jpg|webp|gif|svg\+xml);base64,[a-z0-9+/=]+$/i.test(image)
   );
+}
+
+function isRemoteImageValue(image) {
+  try {
+    const parsedUrl = new URL(String(image || "").trim());
+    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+  } catch (error) {
+    return false;
+  }
+}
+
+async function convertRemoteImageUrlToDataUrl(imageUrl) {
+  const response = await fetch(imageUrl);
+
+  if (!response.ok) {
+    throw new Error("Could not download the image URL.");
+  }
+
+  const contentType = String(response.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+  const contentLength = Number(response.headers.get("content-length") || 0);
+
+  if (!/^image\/(?:png|jpeg|jpg|webp|gif|svg\+xml)$/.test(contentType)) {
+    throw new Error("Image URL must point to a PNG, JPG, WEBP, GIF, or SVG file.");
+  }
+
+  if (contentLength > MAX_REMOTE_IMAGE_BYTES) {
+    throw new Error("Image URL is too large. Please use an image under 2 MB.");
+  }
+
+  const arrayBuffer = await response.arrayBuffer();
+  const imageBuffer = Buffer.from(arrayBuffer);
+
+  if (imageBuffer.length > MAX_REMOTE_IMAGE_BYTES) {
+    throw new Error("Image URL is too large. Please use an image under 2 MB.");
+  }
+
+  return `data:${contentType};base64,${imageBuffer.toString("base64")}`;
+}
+
+async function normalizeIncomingImageValue(image) {
+  const normalizedImage = String(image || "").trim();
+
+  if (!normalizedImage) {
+    return "";
+  }
+
+  if (!isRemoteImageValue(normalizedImage)) {
+    return normalizedImage;
+  }
+
+  return convertRemoteImageUrlToDataUrl(normalizedImage);
 }
 
 async function createOrder(payload, session) {
@@ -647,13 +702,21 @@ async function createMenuItem(payload) {
     return { error: "Image must be a valid asset path or uploaded image." };
   }
 
+  let normalizedImage = "";
+
+  try {
+    normalizedImage = await normalizeIncomingImageValue(image);
+  } catch (error) {
+    return { error: error.message };
+  }
+
   const menuItem = {
     id: await store.getNextMenuItemId(name),
     name,
     category,
     price: Math.round(price),
     description,
-    ...(image ? { image } : {}),
+    ...(normalizedImage ? { image: normalizedImage } : {}),
   };
 
   await store.insertMenuItem(menuItem);
@@ -687,12 +750,20 @@ async function updateMenuItem(menuItemId, payload) {
     return { error: "Image must be a valid asset path or uploaded image." };
   }
 
+  let normalizedImage = "";
+
+  try {
+    normalizedImage = await normalizeIncomingImageValue(image);
+  } catch (error) {
+    return { error: error.message };
+  }
+
   const menuItem = await store.updateMenuItem(menuItemId, {
     name,
     category,
     price: Math.round(price),
     description,
-    image,
+    image: normalizedImage,
   });
 
   if (!menuItem) {

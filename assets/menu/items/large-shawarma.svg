@@ -1,15 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
-  <rect width="640" height="420" rx="36" fill="#fff3e7"/>
-  <circle cx="112" cy="86" r="58" fill="#ffe4b5"/>
-  <circle cx="536" cy="86" r="62" fill="#ffd7c3"/>
-  <ellipse cx="320" cy="358" rx="212" ry="24" fill="#d2b399" opacity="0.25"/>
-  <g transform="translate(138 84) rotate(-7 182 120)">
-    <rect x="64" y="40" width="276" height="172" rx="34" fill="#f1debc"/>
-    <rect x="98" y="72" width="206" height="110" rx="28" fill="#8b4f31"/>
-    <path d="M102 90c44-16 84-16 124 2 30 12 48 12 84 0" stroke="#66b058" stroke-width="18" stroke-linecap="round"/>
-    <path d="M100 120c50 14 100 14 146 0 26-8 42-8 70 4" stroke="#f4d15c" stroke-width="18" stroke-linecap="round"/>
-    <path d="M108 150c40 14 74 14 110 2 42-14 64-12 108 8" stroke="#ffffff" stroke-width="20" stroke-linecap="round" opacity="0.7"/>
-    <path d="M74 54l54 168" stroke="#e7d2ac" stroke-width="30" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">Large Shawarma illustration</title>
+  <desc id="desc">An extra large shawarma wrap with generous filling and sauce.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff8ef"/>
+      <stop offset="100%" stop-color="#ffd9c0"/>
+    </linearGradient>
+    <linearGradient id="wrap" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f4d4a3"/>
+      <stop offset="100%" stop-color="#d7a05d"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="36" fill="url(#bg)"/>
+  <circle cx="112" cy="86" r="58" fill="#ffebbf" opacity="0.76"/>
+  <circle cx="526" cy="84" r="68" fill="#ffd8c6" opacity="0.72"/>
+  <ellipse cx="320" cy="356" rx="214" ry="24" fill="#b99e86" opacity="0.24"/>
+  <g transform="translate(92 28) rotate(10 228 160)">
+    <path d="M152 70c42-30 140-26 188 22l22 22c40 40 46 112 18 164l-30 58-162-34-86-88c-40-40-38-102 8-144z" fill="url(#wrap)"/>
+    <path d="M180 104c36-20 104-12 146 30l18 20c30 34 34 84 12 126l-22 42-128-28-70-72c-24-24-20-84 8-118z" fill="#f7e6c2"/>
+    <path d="M194 124c36-12 96 4 126 40l16 18c20 22 26 54 20 86l-116-22-76-78c4-18 12-32 30-44z" fill="#ab6433"/>
+    <path d="M184 168c24 10 52 18 80 18 34 0 68-8 94-22" stroke="#7cc45b" stroke-width="12" stroke-linecap="round"/>
+    <path d="M194 190c20 10 42 14 66 14 32 0 60-6 84-18" stroke="#fff8ef" stroke-width="10" stroke-linecap="round" opacity="0.7"/>
   </g>
-  <text x="320" y="336" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="32" font-weight="800" fill="#764018">Large Shawarma</text>
+  <text x="320" y="388" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="31" font-weight="800" fill="#7b431e">Large Shawarma</text>
 </svg>

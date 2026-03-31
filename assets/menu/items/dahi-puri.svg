@@ -1,14 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
-  <rect width="640" height="420" rx="36" fill="#fff3e9"/>
-  <circle cx="116" cy="90" r="56" fill="#ffe7b4"/>
-  <circle cx="532" cy="86" r="60" fill="#ffd8ca"/>
-  <ellipse cx="320" cy="356" rx="212" ry="24" fill="#d2b297" opacity="0.24"/>
-  <ellipse cx="320" cy="232" rx="154" ry="58" fill="#d59e58"/>
-  <path d="M180 232c18 76 74 120 140 120s122-44 140-120z" fill="#eef4f9"/>
-  <path d="M214 196c34 16 168 16 212 0" stroke="#ffffff" stroke-width="18" stroke-linecap="round"/>
-  <path d="M220 216c34 16 154 16 200 0" stroke="#8a3d2b" stroke-width="14" stroke-linecap="round"/>
-  <path d="M228 236c38 10 144 10 184 0" stroke="#f2bf45" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="262" cy="182" r="8" fill="#d74b38"/>
-  <circle cx="378" cy="184" r="8" fill="#5aa24f"/>
-  <text x="320" y="332" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="36" font-weight="800" fill="#7b441d">Dahi Puri</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">Dahi Puri illustration</title>
+  <desc id="desc">Dahi puri with yogurt, chutneys, and sev on a plate.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff8ec"/>
+      <stop offset="100%" stop-color="#ffd9c0"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="36" fill="url(#bg)"/>
+  <circle cx="112" cy="86" r="58" fill="#ffe8bb" opacity="0.78"/>
+  <circle cx="530" cy="84" r="68" fill="#ffd8c6" opacity="0.72"/>
+  <ellipse cx="320" cy="356" rx="214" ry="24" fill="#bda08a" opacity="0.24"/>
+  <ellipse cx="320" cy="244" rx="186" ry="68" fill="#f3efe7"/>
+  <g fill="#cd9448">
+    <circle cx="226" cy="220" r="38"/>
+    <circle cx="286" cy="198" r="42"/>
+    <circle cx="354" cy="202" r="42"/>
+    <circle cx="414" cy="222" r="38"/>
+  </g>
+  <path d="M198 206c38 16 74 24 122 24 50 0 86-8 126-24" stroke="#fffaf3" stroke-width="14" stroke-linecap="round"/>
+  <path d="M204 226c44 18 72 22 120 22 54 0 92-6 122-22" stroke="#d44f39" stroke-width="10" stroke-linecap="round"/>
+  <path d="M208 246c38 12 70 18 112 18 54 0 90-6 118-18" stroke="#f5d86b" stroke-width="10" stroke-linecap="round"/>
+  <text x="320" y="338" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="31" font-weight="800" fill="#7b421a">Dahi Puri</text>
 </svg>

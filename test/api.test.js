@@ -3,17 +3,21 @@ const assert = require("node:assert/strict");
 const { spawn } = require("node:child_process");
 const { once } = require("node:events");
 const { setTimeout: delay } = require("node:timers/promises");
+const http = require("node:http");
 const { MongoClient } = require("mongodb");
 
 const HOST = "127.0.0.1";
 const PORT = 3100;
+const IMAGE_PORT = 3101;
 const baseUrl = `http://${HOST}:${PORT}`;
 const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
 const databaseName = `spice_route_test_${Date.now()}`;
 const sampleImageDataUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9WnSUs8AAAAASUVORK5CYII=";
+const sampleRemoteImageUrl = `http://${HOST}:${IMAGE_PORT}/dish.png`;
 
 let serverProcess;
 let mongoClient;
+let imageServer;
 
 async function api(pathname, options = {}) {
   const response = await fetch(`${baseUrl}${pathname}`, options);
@@ -75,14 +79,47 @@ async function stopServer() {
   await once(serverProcess, "exit").catch(() => undefined);
 }
 
+async function startImageServer() {
+  const imageBuffer = Buffer.from(sampleImageDataUrl.split(",")[1], "base64");
+
+  imageServer = http.createServer((request, response) => {
+    if (request.url !== "/dish.png") {
+      response.writeHead(404);
+      response.end();
+      return;
+    }
+
+    response.writeHead(200, {
+      "Content-Type": "image/png",
+      "Content-Length": String(imageBuffer.length),
+    });
+    response.end(imageBuffer);
+  });
+
+  imageServer.listen(IMAGE_PORT, HOST);
+  await once(imageServer, "listening");
+}
+
+async function stopImageServer() {
+  if (!imageServer) {
+    return;
+  }
+
+  imageServer.close();
+  await once(imageServer, "close").catch(() => undefined);
+  imageServer = null;
+}
+
 test.before(async () => {
   mongoClient = new MongoClient(mongoUri);
   await mongoClient.connect();
+  await startImageServer();
   await startServer();
 });
 
 test.after(async () => {
   await stopServer();
+  await stopImageServer();
 
   if (mongoClient) {
     await mongoClient.db(databaseName).dropDatabase().catch(() => undefined);
@@ -465,4 +502,39 @@ test("lets admin create a menu item with an image path", async () => {
   assert.equal(menuLookup.response.status, 200);
   assert.equal(menuLookup.payload.length, 1);
   assert.equal(menuLookup.payload[0].image, sampleImageDataUrl);
+});
+
+test("lets admin save a menu item with a hosted image URL", async () => {
+  const adminLogin = await api("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: "admin@spiceroute.com",
+      password: "admin123",
+      role: "admin",
+    }),
+  });
+
+  const menuUpdate = await api("/api/menu/blue-mojito", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${adminLogin.payload.token}`,
+    },
+    body: JSON.stringify({
+      name: "Blue Mojito",
+      category: "Beverages",
+      price: 119,
+      description: "Cool blue mojito with mint, lemon, and sparkling soda.",
+      image: sampleRemoteImageUrl,
+    }),
+  });
+
+  assert.equal(menuUpdate.response.status, 200);
+  assert.match(menuUpdate.payload.image, /^data:image\/png;base64,/);
+
+  const menuLookup = await api("/api/menu?search=blue%20mojito");
+  assert.equal(menuLookup.response.status, 200);
+  assert.equal(menuLookup.payload.length, 1);
+  assert.match(menuLookup.payload[0].image, /^data:image\/png;base64,/);
 });

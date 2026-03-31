@@ -23,6 +23,8 @@ const heroCardTitle = document.getElementById("heroCardTitle");
 const heroCardText = document.getElementById("heroCardText");
 const heroCardPrice = document.getElementById("heroCardPrice");
 const heroCardMeta = document.getElementById("heroCardMeta");
+const heroCardImageWrap = document.getElementById("heroCardImageWrap");
+const heroCardImage = document.getElementById("heroCardImage");
 const featuredHeading = document.getElementById("featuredHeading");
 const featuredGrid = document.getElementById("featuredGrid");
 
@@ -38,9 +40,33 @@ const featuredHeroIds = ["chicken-biryani", "mutton-biryani", "chicken-shawarma"
 const featuredMenuIds = ["chicken-biryani", "chicken-shawarma", "blue-mojito", "chicken-burger", "loaded-french-fries"];
 const CART_STORAGE_KEY = "spiceRouteCart";
 const MENU_FILTERS_STORAGE_KEY = "spiceRouteMenuFilters";
+const categoryFallbackImages = {
+  Chaat: "assets/menu/chaat.svg",
+  Snacks: "assets/menu/snacks.svg",
+  Burgers: "assets/menu/burgers.svg",
+  Wraps: "assets/menu/wraps.svg",
+  "Indian Main Course": "assets/menu/biryani.svg",
+  Beverages: "assets/menu/beverages.svg",
+};
 
 function formatPrice(value) {
   return `Rs. ${value}`;
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function getMenuItemImage(item) {
+  return item && item.image ? item.image : getFallbackImageForCategory(item ? item.category : "");
+}
+
+function getFallbackImageForCategory(category) {
+  return categoryFallbackImages[category] || "assets/menu/snacks.svg";
 }
 
 function readLocalStorage(key, fallbackValue) {
@@ -367,7 +393,28 @@ function renderHeroCard(items) {
     heroCardText.textContent = "We are preparing fresh dishes for the next service window.";
     heroCardPrice.textContent = "Rs. --";
     heroCardMeta.textContent = "Check back shortly";
+    if (heroCardImageWrap && heroCardImage) {
+      heroCardImageWrap.hidden = true;
+      heroCardImage.removeAttribute("src");
+      heroCardImage.alt = "";
+    }
     return;
+  }
+
+  if (heroCardImageWrap && heroCardImage) {
+    const heroImage = getMenuItemImage(heroItem);
+
+    if (heroImage) {
+      heroCardImageWrap.hidden = false;
+      heroCardImage.src = heroImage;
+      heroCardImage.dataset.fallbackImage = getFallbackImageForCategory(heroItem.category);
+      heroCardImage.alt = heroItem.name;
+    } else {
+      heroCardImageWrap.hidden = true;
+      heroCardImage.removeAttribute("src");
+      heroCardImage.removeAttribute("data-fallback-image");
+      heroCardImage.alt = "";
+    }
   }
 
   heroCardLabel.textContent = `${heroItem.category} spotlight`;
@@ -426,7 +473,7 @@ function renderFeaturedItems(items) {
       (item) => `
         <article class="feature-card feature-menu-card" data-featured-id="${item.id}">
           <div class="feature-menu-image-wrap">
-            <img class="feature-menu-image" src="${item.image || "assets/menu/snacks.svg"}" alt="${item.name}">
+            <img class="feature-menu-image" src="${getMenuItemImage(item)}" data-fallback-image="${escapeHtml(getFallbackImageForCategory(item.category))}" alt="${escapeHtml(item.name)}">
           </div>
           <span class="menu-tag">${item.category}</span>
           <h3>${item.name}</h3>
@@ -466,7 +513,7 @@ function renderMenu() {
                 (item) => `
                   <article class="menu-card" data-id="${item.id}">
                     <div class="menu-card-image-wrap">
-                      <img class="menu-card-image" src="${item.image || "assets/menu/snacks.svg"}" alt="${item.name}">
+                      <img class="menu-card-image" src="${getMenuItemImage(item)}" data-fallback-image="${escapeHtml(getFallbackImageForCategory(item.category))}" alt="${escapeHtml(item.name)}">
                     </div>
                     <span class="menu-tag">${item.category}</span>
                     <h4>${item.name}</h4>
@@ -784,6 +831,26 @@ cartItemsContainer.addEventListener("click", (event) => {
 if (closePaymentToastButton) {
   closePaymentToastButton.addEventListener("click", closePaymentToast);
 }
+
+document.addEventListener(
+  "error",
+  (event) => {
+    const target = event.target;
+
+    if (!(target instanceof HTMLImageElement)) {
+      return;
+    }
+
+    const fallbackImage = target.dataset.fallbackImage;
+
+    if (!fallbackImage || target.src.endsWith(fallbackImage)) {
+      return;
+    }
+
+    target.src = fallbackImage;
+  },
+  true
+);
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && paymentToast && !paymentToast.hidden) {

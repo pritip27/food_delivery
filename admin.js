@@ -13,8 +13,11 @@ const menuForm = document.getElementById("menuForm");
 const menuItemsList = document.getElementById("menuItemsList");
 const cancelMenuEditButton = document.getElementById("cancelMenuEditButton");
 const menuItemImageInput = document.getElementById("menuItemImage");
+const menuItemImageUrlInput = document.getElementById("menuItemImageUrl");
 const adminImagePreview = document.getElementById("adminImagePreview");
 const adminImagePreviewMedia = document.getElementById("adminImagePreviewMedia");
+const useDefaultMenuImageButton = document.getElementById("useDefaultMenuImageButton");
+const removeMenuImageButton = document.getElementById("removeMenuImageButton");
 
 const allowedStatuses = ["received", "approved", "rejected", "preparing", "out for delivery", "delivered"];
 const menuSubmitButton = document.getElementById("saveMenuItemButton");
@@ -27,9 +30,52 @@ const editingMenuIds = new Set();
 let adminOrdersSearchDebounceId = null;
 let editingMenuItemId = "";
 let currentMenuImageValue = "";
+const categoryFallbackImages = {
+  Chaat: "assets/menu/chaat.svg",
+  Snacks: "assets/menu/snacks.svg",
+  Burgers: "assets/menu/burgers.svg",
+  Wraps: "assets/menu/wraps.svg",
+  "Indian Main Course": "assets/menu/biryani.svg",
+  Beverages: "assets/menu/beverages.svg",
+};
+const defaultMenuItemImages = {
+  "masala-tea": "assets/menu/items/masala-tea.svg",
+  "masala-maggi": "assets/menu/items/masala-maggi.svg",
+  "french-fries": "assets/menu/items/french-fries.svg",
+  "loaded-french-fries": "assets/menu/items/loaded-french-fries.svg",
+  "masala-puri": "assets/menu/items/masala-puri.svg",
+  "pani-puri": "assets/menu/items/pani-puri.svg",
+  "dahi-puri": "assets/menu/items/dahi-puri.svg",
+  "veg-burger": "assets/menu/items/veg-burger.svg",
+  "chicken-burger": "assets/menu/items/chicken-burger.svg",
+  shawarma: "assets/menu/items/chicken-shawarma.svg",
+  "large-shawarma": "assets/menu/items/large-shawarma.svg",
+  "chicken-biryani": "assets/menu/items/chicken-biryani.svg",
+  "mutton-biryani": "assets/menu/items/mutton-biryani.svg",
+  "lime-soda": "assets/menu/items/lime-soda.svg",
+  "chocolate-milkshake": "assets/menu/items/chocolate-milkshake.svg",
+  "vanilla-milkshake": "assets/menu/items/vanilla-milkshake.svg",
+  "blue-mojito": "assets/menu/items/blue-mojito.svg",
+};
 
 function formatPrice(value) {
   return `Rs. ${value}`;
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function getFallbackImageForCategory(category) {
+  return categoryFallbackImages[category] || "assets/menu/snacks.svg";
+}
+
+function getMenuItemImage(item) {
+  return item && item.image ? item.image : getFallbackImageForCategory(item ? item.category : "");
 }
 
 function setAdminMessage(message, type) {
@@ -118,9 +164,19 @@ function validateMenuPayload(payload) {
   return errors;
 }
 
+function isValidRemoteImageUrl(value) {
+  try {
+    const parsedUrl = new URL(String(value || "").trim());
+    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+  } catch (error) {
+    return false;
+  }
+}
+
 function isSupportedImageValue(value) {
   return (
     /^assets\/[\w./-]+\.(svg|png|jpe?g|webp|gif)$/i.test(value) ||
+    isValidRemoteImageUrl(value) ||
     /^data:image\/(?:png|jpeg|jpg|webp|gif|svg\+xml);base64,[a-z0-9+/=]+$/i.test(value)
   );
 }
@@ -143,11 +199,13 @@ function renderAdminImagePreview(imageValue) {
   if (!imageValue) {
     adminImagePreview.hidden = true;
     adminImagePreviewMedia.removeAttribute("src");
+    adminImagePreviewMedia.removeAttribute("data-fallback-image");
     return;
   }
 
   adminImagePreview.hidden = false;
   adminImagePreviewMedia.src = imageValue;
+  adminImagePreviewMedia.dataset.fallbackImage = "assets/menu/snacks.svg";
 }
 
 function getMenuImageLabel(imageValue) {
@@ -159,7 +217,50 @@ function getMenuImageLabel(imageValue) {
     return "Stored in MongoDB";
   }
 
+  if (isValidRemoteImageUrl(imageValue)) {
+    return "Hosted image URL";
+  }
+
   return "Asset path image";
+}
+
+function syncRemoveImageButtonVisibility() {
+  if (!removeMenuImageButton) {
+    return;
+  }
+
+  removeMenuImageButton.hidden = !currentMenuImageValue && !(menuItemImageInput && menuItemImageInput.value) && !(menuItemImageUrlInput && menuItemImageUrlInput.value.trim());
+}
+
+function syncDefaultArtworkButtonVisibility() {
+  if (!useDefaultMenuImageButton) {
+    return;
+  }
+
+  useDefaultMenuImageButton.hidden = !editingMenuItemId || !defaultMenuItemImages[editingMenuItemId];
+}
+
+function clearSelectedImageInputs() {
+  if (menuItemImageInput) {
+    menuItemImageInput.value = "";
+  }
+
+  if (menuItemImageUrlInput) {
+    menuItemImageUrlInput.value = "";
+  }
+}
+
+function previewCurrentMenuImage() {
+  const remoteImageUrl = menuItemImageUrlInput ? menuItemImageUrlInput.value.trim() : "";
+
+  if (remoteImageUrl) {
+    renderAdminImagePreview(remoteImageUrl);
+    syncRemoveImageButtonVisibility();
+    return;
+  }
+
+  renderAdminImagePreview(currentMenuImageValue);
+  syncRemoveImageButtonVisibility();
 }
 
 function setMenuProcessingState(isProcessing) {
@@ -185,10 +286,20 @@ function resetMenuForm() {
   currentMenuImageValue = "";
   clearFieldErrors();
   renderAdminImagePreview("");
+  syncRemoveImageButtonVisibility();
+  syncDefaultArtworkButtonVisibility();
   setMenuProcessingState(false);
 
   if (cancelMenuEditButton) {
     cancelMenuEditButton.hidden = true;
+  }
+
+  if (removeMenuImageButton) {
+    removeMenuImageButton.hidden = true;
+  }
+
+  if (useDefaultMenuImageButton) {
+    useDefaultMenuImageButton.hidden = true;
   }
 }
 
@@ -203,12 +314,21 @@ function populateMenuFormForEdit(menuItem) {
   menuForm.elements.price.value = String(menuItem.price);
   menuForm.elements.description.value = menuItem.description;
   currentMenuImageValue = menuItem.image || "";
+  if (menuItemImageUrlInput) {
+    menuItemImageUrlInput.value = isValidRemoteImageUrl(currentMenuImageValue) ? currentMenuImageValue : "";
+  }
   clearFieldErrors();
   renderAdminImagePreview(currentMenuImageValue);
+  syncRemoveImageButtonVisibility();
+  syncDefaultArtworkButtonVisibility();
   menuSubmitButton.textContent = "Save Changes";
 
   if (cancelMenuEditButton) {
     cancelMenuEditButton.hidden = false;
+  }
+
+  if (removeMenuImageButton) {
+    removeMenuImageButton.hidden = false;
   }
 
   menuForm.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -408,7 +528,7 @@ function renderMenuItems(menuItems) {
         <article class="order-card">
           <div class="admin-menu-item-preview">
             <div class="admin-menu-item-image-wrap">
-              <img class="admin-menu-item-image" src="${item.image || "assets/menu/snacks.svg"}" alt="${item.name}">
+              <img class="admin-menu-item-image" src="${getMenuItemImage(item)}" data-fallback-image="${escapeHtml(getFallbackImageForCategory(item.category))}" alt="${escapeHtml(item.name)}">
             </div>
             <div class="admin-menu-item-copy">
               <p class="order-id">${item.category}</p>
@@ -515,7 +635,8 @@ async function createMenuItem(event) {
   const isEditing = Boolean(editingMenuItemId);
   const formData = new FormData(menuForm);
   const selectedImageFile = menuItemImageInput && menuItemImageInput.files ? menuItemImageInput.files[0] : null;
-  let imageValue = currentMenuImageValue;
+  const imageUrlValue = menuItemImageUrlInput ? menuItemImageUrlInput.value.trim() : "";
+  let imageValue = imageUrlValue || currentMenuImageValue;
 
   if (selectedImageFile) {
     try {
@@ -535,6 +656,11 @@ async function createMenuItem(event) {
     image: imageValue,
   };
   const fieldErrors = validateMenuPayload(payload);
+
+  if (imageUrlValue && fieldErrors.menuItemImage) {
+    fieldErrors.menuItemImageUrl = "Enter a valid http:// or https:// image URL.";
+    delete fieldErrors.menuItemImage;
+  }
 
   clearFieldErrors();
 
@@ -675,21 +801,53 @@ if (menuForm) {
 if (menuItemImageInput) {
   menuItemImageInput.addEventListener("change", async () => {
     setFieldError("menuItemImage", "");
+    setFieldError("menuItemImageUrl", "");
 
     const selectedImageFile = menuItemImageInput.files ? menuItemImageInput.files[0] : null;
 
     if (!selectedImageFile) {
-      renderAdminImagePreview(currentMenuImageValue);
+      previewCurrentMenuImage();
       return;
     }
 
     try {
+      if (menuItemImageUrlInput) {
+        menuItemImageUrlInput.value = "";
+      }
+
       const previewValue = await readFileAsDataUrl(selectedImageFile);
       renderAdminImagePreview(previewValue);
+      syncRemoveImageButtonVisibility();
     } catch (error) {
       setFieldError("menuItemImage", error.message);
-      renderAdminImagePreview(currentMenuImageValue);
+      previewCurrentMenuImage();
     }
+  });
+}
+
+if (menuItemImageUrlInput) {
+  menuItemImageUrlInput.addEventListener("input", () => {
+    setFieldError("menuItemImage", "");
+    setFieldError("menuItemImageUrl", "");
+
+    const nextValue = menuItemImageUrlInput.value.trim();
+
+    if (!nextValue) {
+      previewCurrentMenuImage();
+      return;
+    }
+
+    if (menuItemImageInput) {
+      menuItemImageInput.value = "";
+    }
+
+    if (isValidRemoteImageUrl(nextValue)) {
+      renderAdminImagePreview(nextValue);
+    } else {
+      renderAdminImagePreview("");
+    }
+
+    syncRemoveImageButtonVisibility();
   });
 }
 
@@ -733,6 +891,54 @@ if (cancelMenuEditButton) {
     setMenuManagerMessage("Edit cancelled. You can add a new dish now.", null);
   });
 }
+
+if (removeMenuImageButton) {
+  removeMenuImageButton.addEventListener("click", () => {
+    currentMenuImageValue = "";
+    clearSelectedImageInputs();
+    renderAdminImagePreview("");
+    syncRemoveImageButtonVisibility();
+    setFieldError("menuItemImage", "");
+    setFieldError("menuItemImageUrl", "");
+    setMenuManagerMessage("Image cleared. Save the dish to apply the change.", "success");
+  });
+}
+
+if (useDefaultMenuImageButton) {
+  useDefaultMenuImageButton.addEventListener("click", () => {
+    if (!editingMenuItemId || !defaultMenuItemImages[editingMenuItemId]) {
+      return;
+    }
+
+    currentMenuImageValue = defaultMenuItemImages[editingMenuItemId];
+    clearSelectedImageInputs();
+    renderAdminImagePreview(currentMenuImageValue);
+    syncRemoveImageButtonVisibility();
+    setFieldError("menuItemImage", "");
+    setFieldError("menuItemImageUrl", "");
+    setMenuManagerMessage("Default artwork selected. Save the dish to apply the refreshed image.", "success");
+  });
+}
+
+document.addEventListener(
+  "error",
+  (event) => {
+    const target = event.target;
+
+    if (!(target instanceof HTMLImageElement)) {
+      return;
+    }
+
+    const fallbackImage = target.dataset.fallbackImage;
+
+    if (!fallbackImage || target.src.endsWith(fallbackImage)) {
+      return;
+    }
+
+    target.src = fallbackImage;
+  },
+  true
+);
 
 adminLogoutButton.addEventListener("click", async () => {
   await logoutSession();

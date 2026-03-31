@@ -1,12 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
-  <rect width="640" height="420" rx="36" fill="#fff2e9"/>
-  <circle cx="110" cy="90" r="56" fill="#ffe1bd"/>
-  <circle cx="538" cy="86" r="62" fill="#ffd8ca"/>
-  <ellipse cx="320" cy="358" rx="210" ry="24" fill="#cdb09a" opacity="0.24"/>
-  <rect x="236" y="98" width="168" height="190" rx="28" fill="#ffffff" opacity="0.72"/>
-  <rect x="250" y="116" width="140" height="156" rx="20" fill="#8d5736"/>
-  <path d="M254 140c32-12 104-12 136 0" stroke="#a66a44" stroke-width="10" stroke-linecap="round"/>
-  <path d="M244 106c42-28 110-20 148 0-10 20-22 32-44 36h-58c-20 0-34-10-46-36z" fill="#fbf0ec"/>
-  <path d="M390 102l28 42" stroke="#84553a" stroke-width="8" stroke-linecap="round"/>
-  <text x="320" y="332" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="30" font-weight="800" fill="#6f4126">Chocolate Milkshake</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">Chocolate Milkshake illustration</title>
+  <desc id="desc">A chilled chocolate milkshake topped with cream and drizzle.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff7f0"/>
+      <stop offset="100%" stop-color="#f0d4c3"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#f3e3db" stop-opacity="0.74"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="36" fill="url(#bg)"/>
+  <circle cx="112" cy="84" r="58" fill="#f7e7dd" opacity="0.78"/>
+  <circle cx="530" cy="84" r="68" fill="#edd2c4" opacity="0.72"/>
+  <ellipse cx="320" cy="356" rx="210" ry="24" fill="#b9a69d" opacity="0.24"/>
+  <rect x="236" y="108" width="168" height="198" rx="32" fill="url(#glass)"/>
+  <rect x="252" y="140" width="136" height="152" rx="22" fill="#8a573d"/>
+  <path d="M242 138c10-24 36-42 78-42s68 18 78 42c0 28-32 46-78 46s-78-18-78-46z" fill="#fff6f0"/>
+  <path d="M244 140c16 10 40 20 76 20s60-10 76-20" stroke="#f2e8de" stroke-width="8" stroke-linecap="round"/>
+  <path d="M288 98l16 24" stroke="#71462f" stroke-width="8" stroke-linecap="round"/>
+  <path d="M336 90l12 36" stroke="#71462f" stroke-width="8" stroke-linecap="round"/>
+  <path d="M278 196c26 10 76 10 104 0" stroke="#c78667" stroke-width="8" stroke-linecap="round"/>
+  <text x="320" y="338" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="28" font-weight="800" fill="#78432c">Chocolate Milkshake</text>
 </svg>

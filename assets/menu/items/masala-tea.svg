@@ -1,11 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
-  <rect width="640" height="420" rx="36" fill="#fff3e3"/>
-  <circle cx="104" cy="88" r="54" fill="#ffe0b0"/>
-  <circle cx="548" cy="82" r="62" fill="#ffd2c1"/>
-  <ellipse cx="320" cy="356" rx="210" ry="24" fill="#d2b49a" opacity="0.28"/>
-  <rect x="212" y="120" width="162" height="144" rx="24" fill="#f4d8b8"/>
-  <rect x="226" y="132" width="134" height="118" rx="18" fill="#9b6336"/>
-  <path d="M374 154c28 0 46 18 46 44s-18 44-46 44" fill="none" stroke="#f4d8b8" stroke-width="16"/>
-  <path d="M284 94c-12-24 10-44 28-54-2 18 4 30 14 42" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
-  <text x="320" y="330" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="34" font-weight="800" fill="#73431f">Masala Tea</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">Masala Tea illustration</title>
+  <desc id="desc">A warm cup of masala chai with steam and spice notes.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff8e9"/>
+      <stop offset="100%" stop-color="#ffd9bb"/>
+    </linearGradient>
+    <linearGradient id="tea" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c67c3b"/>
+      <stop offset="100%" stop-color="#8f4b25"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="36" fill="url(#bg)"/>
+  <circle cx="112" cy="86" r="60" fill="#ffe8b8" opacity="0.78"/>
+  <circle cx="526" cy="84" r="70" fill="#ffd8c5" opacity="0.72"/>
+  <ellipse cx="320" cy="356" rx="210" ry="24" fill="#c0a08a" opacity="0.24"/>
+  <path d="M214 150h156c26 0 46 20 46 46v56c0 26-20 46-46 46H214c-26 0-46-20-46-46v-56c0-26 20-46 46-46z" fill="#fff8f0"/>
+  <path d="M216 172h152c18 0 32 14 32 32v38c0 18-14 32-32 32H216c-18 0-32-14-32-32v-38c0-18 14-32 32-32z" fill="url(#tea)"/>
+  <path d="M414 186c34 0 58 24 58 56s-24 56-58 56h-18v-26h16c20 0 34-12 34-30s-14-30-34-30h-16v-26z" fill="#fff8f0"/>
+  <path d="M204 146c18-18 36-24 52-24 20 0 38 10 54 10 18 0 30-10 54-10 24 0 44 10 68 32" stroke="#f6efe2" stroke-width="10" stroke-linecap="round" opacity="0.7"/>
+  <path d="M252 112c-12-18-10-38 4-56 12 18 14 38-4 56z" fill="#d99133" opacity="0.72"/>
+  <path d="M312 100c-10-16-8-34 4-50 10 16 12 34-4 50z" fill="#d99133" opacity="0.72"/>
+  <path d="M370 112c-12-18-10-38 4-56 12 18 14 38-4 56z" fill="#d99133" opacity="0.72"/>
+  <text x="320" y="344" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="31" font-weight="800" fill="#7e431d">Masala Tea</text>
 </svg>

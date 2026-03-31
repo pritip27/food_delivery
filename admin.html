@@ -91,13 +91,17 @@
 
         <label class="form-field" for="menuItemImage">Dish Image</label>
         <input class="form-input" id="menuItemImage" name="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml">
-        <p class="form-help-text" id="menuItemImageHelp">Upload an image to store it directly in MongoDB. Leave it empty to keep the current image.</p>
+        <label class="form-field" for="menuItemImageUrl">Or Image URL</label>
+        <input class="form-input" id="menuItemImageUrl" name="imageUrl" type="url" placeholder="https://example.com/dish.jpg">
+        <p class="form-help-text" id="menuItemImageHelp">Upload a file to store it in MongoDB, or paste an image URL. Leave both empty to keep the current image while editing.</p>
         <div class="admin-image-preview" id="adminImagePreview" hidden>
           <img class="admin-image-preview-media" id="adminImagePreviewMedia" alt="Selected menu preview">
         </div>
 
         <div class="admin-form-actions">
           <button class="checkout-button admin-logout" id="saveMenuItemButton" type="submit">Add Dish</button>
+          <button class="secondary-button" id="useDefaultMenuImageButton" type="button" hidden>Use Default Artwork</button>
+          <button class="secondary-button" id="removeMenuImageButton" type="button" hidden>Remove Image</button>
           <button class="secondary-button" id="cancelMenuEditButton" type="button" hidden>Cancel Edit</button>
         </div>
       </form>

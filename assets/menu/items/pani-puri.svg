@@ -1,13 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420">
-  <rect width="640" height="420" rx="36" fill="#fff4e3"/>
-  <circle cx="108" cy="92" r="58" fill="#ffe4aa"/>
-  <circle cx="536" cy="82" r="64" fill="#ffd7c0"/>
-  <ellipse cx="320" cy="356" rx="210" ry="24" fill="#d3b194" opacity="0.26"/>
-  <circle cx="220" cy="224" r="54" fill="#d8a252"/>
-  <circle cx="320" cy="202" r="56" fill="#d59c49"/>
-  <circle cx="420" cy="224" r="54" fill="#d8a252"/>
-  <circle cx="220" cy="214" r="14" fill="#5ba74f"/>
-  <circle cx="320" cy="192" r="14" fill="#5ba74f"/>
-  <circle cx="420" cy="214" r="14" fill="#5ba74f"/>
-  <text x="320" y="332" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="36" font-weight="800" fill="#7d491e">Pani Puri</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">Pani Puri illustration</title>
+  <desc id="desc">A serving of pani puri with crisp shells and spiced filling.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff7eb"/>
+      <stop offset="100%" stop-color="#ffd8be"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="36" fill="url(#bg)"/>
+  <circle cx="112" cy="86" r="58" fill="#ffe8bb" opacity="0.78"/>
+  <circle cx="530" cy="82" r="68" fill="#ffd7c3" opacity="0.72"/>
+  <ellipse cx="320" cy="356" rx="214" ry="24" fill="#bda08a" opacity="0.24"/>
+  <ellipse cx="320" cy="246" rx="184" ry="68" fill="#f2eee5"/>
+  <g fill="#cf9747">
+    <circle cx="222" cy="224" r="42"/>
+    <circle cx="286" cy="198" r="46"/>
+    <circle cx="356" cy="204" r="46"/>
+    <circle cx="422" cy="228" r="42"/>
+  </g>
+  <g fill="#7db554">
+    <circle cx="286" cy="198" r="12"/>
+    <circle cx="356" cy="204" r="12"/>
+  </g>
+  <path d="M196 250c36 8 70 12 124 12 58 0 98-4 128-12" stroke="#7bb14f" stroke-width="10" stroke-linecap="round"/>
+  <text x="320" y="338" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="31" font-weight="800" fill="#7b421a">Pani Puri</text>
 </svg>
