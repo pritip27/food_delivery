@@ -40,14 +40,6 @@ const featuredHeroIds = ["chicken-biryani", "mutton-biryani", "chicken-shawarma"
 const featuredMenuIds = ["chicken-biryani", "chicken-shawarma", "blue-mojito", "chicken-burger", "loaded-french-fries"];
 const CART_STORAGE_KEY = "spiceRouteCart";
 const MENU_FILTERS_STORAGE_KEY = "spiceRouteMenuFilters";
-const categoryFallbackImages = {
-  Chaat: "assets/menu/chaat.svg",
-  Snacks: "assets/menu/snacks.svg",
-  Burgers: "assets/menu/burgers.svg",
-  Wraps: "assets/menu/wraps.svg",
-  "Indian Main Course": "assets/menu/biryani.svg",
-  Beverages: "assets/menu/beverages.svg",
-};
 
 function formatPrice(value) {
   return `Rs. ${value}`;
@@ -66,7 +58,34 @@ function getMenuItemImage(item) {
 }
 
 function getFallbackImageForCategory(category) {
-  return categoryFallbackImages[category] || "assets/menu/snacks.svg";
+  const palette = {
+    Chaat: { start: "#fff4df", end: "#ffd4c0", accent: "#c64035" },
+    Snacks: { start: "#fff6de", end: "#ffd4b5", accent: "#d9781f" },
+    Burgers: { start: "#fff6e2", end: "#ffd9b7", accent: "#b35a27" },
+    Wraps: { start: "#fff7e6", end: "#ffd8c0", accent: "#a86a2f" },
+    "Indian Main Course": { start: "#fff1dd", end: "#ffcfae", accent: "#b85a24" },
+    Beverages: { start: "#eefcff", end: "#d7f2df", accent: "#2e8b57" },
+  };
+  const theme = palette[category] || palette.Snacks;
+  const safeCategory = escapeHtml(category || "Menu");
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="${safeCategory}">
+      <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${theme.start}"/>
+          <stop offset="100%" stop-color="${theme.end}"/>
+        </linearGradient>
+      </defs>
+      <rect width="640" height="420" rx="36" fill="url(#bg)"/>
+      <circle cx="110" cy="86" r="58" fill="#ffffff" opacity="0.4"/>
+      <circle cx="528" cy="84" r="70" fill="#ffffff" opacity="0.28"/>
+      <rect x="160" y="108" width="320" height="204" rx="28" fill="#ffffff" opacity="0.6"/>
+      <text x="320" y="186" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="${theme.accent}">Spice Route</text>
+      <text x="320" y="234" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="800" fill="#1f352b">${safeCategory}</text>
+      <text x="320" y="278" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="600" fill="#4d6257">Freshly prepared</text>
+    </svg>
+  `;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
 function readLocalStorage(key, fallbackValue) {

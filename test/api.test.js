@@ -14,6 +14,7 @@ const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
 const databaseName = `spice_route_test_${Date.now()}`;
 const sampleImageDataUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9WnSUs8AAAAASUVORK5CYII=";
 const sampleRemoteImageUrl = `http://${HOST}:${IMAGE_PORT}/dish.png`;
+const sampleLargeImageDataUrl = `data:image/png;base64,${"A".repeat(1024 * 1024 * 2)}`;
 
 let serverProcess;
 let mongoClient;
@@ -537,4 +538,34 @@ test("lets admin save a menu item with a hosted image URL", async () => {
   assert.equal(menuLookup.response.status, 200);
   assert.equal(menuLookup.payload.length, 1);
   assert.match(menuLookup.payload[0].image, /^data:image\/png;base64,/);
+});
+
+test("lets admin save a larger uploaded image payload", async () => {
+  const adminLogin = await api("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: "admin@spiceroute.com",
+      password: "admin123",
+      role: "admin",
+    }),
+  });
+
+  const menuUpdate = await api("/api/menu/chicken-burger", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${adminLogin.payload.token}`,
+    },
+    body: JSON.stringify({
+      name: "Chicken Burger",
+      category: "Burgers",
+      price: 149,
+      description: "Juicy chicken patty burger with mayo, onion, and crunchy lettuce.",
+      image: sampleLargeImageDataUrl,
+    }),
+  });
+
+  assert.equal(menuUpdate.response.status, 200);
+  assert.equal(menuUpdate.payload.image, sampleLargeImageDataUrl);
 });
