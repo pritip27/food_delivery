@@ -24,6 +24,63 @@ async function readJsonArray(filePath, fallback = []) {
   }
 }
 
+function getMimeTypeFromExtension(filePath) {
+  const extension = path.extname(filePath).toLowerCase();
+
+  if (extension === ".svg") {
+    return "image/svg+xml";
+  }
+
+  if (extension === ".png") {
+    return "image/png";
+  }
+
+  if (extension === ".jpg" || extension === ".jpeg") {
+    return "image/jpeg";
+  }
+
+  if (extension === ".webp") {
+    return "image/webp";
+  }
+
+  if (extension === ".gif") {
+    return "image/gif";
+  }
+
+  return "";
+}
+
+function convertAssetPathToDataUrl(imageValue) {
+  if (!imageValue || !/^assets\/[\w./-]+\.(svg|png|jpe?g|webp|gif)$/i.test(String(imageValue))) {
+    return imageValue;
+  }
+
+  const absoluteImagePath = path.join(__dirname, String(imageValue));
+  const mimeType = getMimeTypeFromExtension(absoluteImagePath);
+
+  if (!mimeType || !fs.existsSync(absoluteImagePath)) {
+    return imageValue;
+  }
+
+  try {
+    const fileContents = fs.readFileSync(absoluteImagePath);
+    return `data:${mimeType};base64,${fileContents.toString("base64")}`;
+  } catch (error) {
+    return imageValue;
+  }
+}
+
+function normalizeMenuItemForStorage(menuItem) {
+  if (!menuItem || typeof menuItem !== "object") {
+    return menuItem;
+  }
+
+  return {
+    ...menuItem,
+    image: convertAssetPathToDataUrl(menuItem.image),
+  };
+}
+
 function cloneMany(items) {
   return items.map((item) => ({ ...item }));
 }
@@ -41,7 +98,26 @@ async function seedCollectionIfEmpty(collection, filePath, fallbackItems) {
     return;
   }
 
-  await collection.insertMany(cloneMany(items), { ordered: true });
+  const normalizedItems =
+    collection.collectionName === "menuItems"
+      ? items.map((item) => normalizeMenuItemForStorage(item))
+      : cloneMany(items);
+
+  await collection.insertMany(normalizedItems, { ordered: true });
+}
+
+async function migrateMenuItemImages(menuItemsCollection) {
+  const itemsWithAssetPaths = await menuItemsCollection
+    .find({ image: { $regex: "^assets/" } }, { projection: { _id: 1, image: 1 } })
+    .toArray();
+
+  for (const item of itemsWithAssetPaths) {
+    const nextImage = convertAssetPathToDataUrl(item.image);
+
+    if (nextImage && nextImage !== item.image) {
+      await menuItemsCollection.updateOne({ _id: item._id }, { $set: { image: nextImage } });
+    }
+  }
 }
 
 async function initializeDatabase({ defaultUsers, defaultMenuItems }) {
@@ -65,6 +141,7 @@ async function initializeDatabase({ defaultUsers, defaultMenuItems }) {
   await seedCollectionIfEmpty(users, path.join(__dirname, "users.json"), defaultUsers);
   await seedCollectionIfEmpty(menuItems, path.join(__dirname, "menu.json"), defaultMenuItems);
   await seedCollectionIfEmpty(orders, path.join(__dirname, "orders.json"), []);
+  await migrateMenuItemImages(menuItems);
 
   function withoutMongoId(document) {
     if (!document) {
@@ -153,15 +230,17 @@ async function initializeDatabase({ defaultUsers, defaultMenuItems }) {
       return (await menuItems.find({ id: { $in: ids } }).toArray()).map(withoutMongoId);
     },
     async insertMenuItem(menuItem) {
-      await menuItems.insertOne({ ...menuItem });
-      return menuItem;
+      const normalizedMenuItem = normalizeMenuItemForStorage(menuItem);
+      await menuItems.insertOne({ ...normalizedMenuItem });
+      return normalizedMenuItem;
     },
     async updateMenuItem(menuItemId, updates) {
+      const normalizedUpdates = normalizeMenuItemForStorage(updates);
       const updated = await menuItems.findOneAndUpdate(
         { id: menuItemId },
         {
           $set: {
-            ...updates,
+            ...normalizedUpdates,
           },
         },
         { returnDocument: "after" }

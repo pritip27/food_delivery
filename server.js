@@ -515,6 +515,13 @@ function validatePayment(payment) {
   };
 }
 
+function isValidImageValue(image) {
+  return (
+    /^assets\/[\w./-]+\.(svg|png|jpe?g|webp|gif)$/i.test(image) ||
+    /^data:image\/(?:png|jpeg|jpg|webp|gif|svg\+xml);base64,[a-z0-9+/=]+$/i.test(image)
+  );
+}
+
 async function createOrder(payload, session) {
   const customerName = String(payload.customerName || "").trim();
   const customerPhone = String(payload.customerPhone || "").replace(/\D+/g, "");
@@ -636,8 +643,8 @@ async function createMenuItem(payload) {
     return { error: "Price must be a number greater than 0." };
   }
 
-  if (image && !/^assets\/[\w./-]+\.(svg|png|jpe?g|webp|gif)$/i.test(image)) {
-    return { error: "Image must be a valid local asset path." };
+  if (image && !isValidImageValue(image)) {
+    return { error: "Image must be a valid asset path or uploaded image." };
   }
 
   const menuItem = {
@@ -676,8 +683,8 @@ async function updateMenuItem(menuItemId, payload) {
     return { error: "Price must be a number greater than 0." };
   }
 
-  if (image && !/^assets\/[\w./-]+\.(svg|png|jpe?g|webp|gif)$/i.test(image)) {
-    return { error: "Image must be a valid local asset path." };
+  if (image && !isValidImageValue(image)) {
+    return { error: "Image must be a valid asset path or uploaded image." };
   }
 
   const menuItem = await store.updateMenuItem(menuItemId, {

@@ -89,8 +89,12 @@
         <label class="form-field" for="menuItemDescription">Description</label>
         <textarea class="form-input form-textarea" id="menuItemDescription" name="description" placeholder="Enter dish description" required></textarea>
 
-        <label class="form-field" for="menuItemImage">Image Path</label>
-        <input class="form-input" id="menuItemImage" name="image" type="text" placeholder="assets/menu/items/chicken-biryani.svg">
+        <label class="form-field" for="menuItemImage">Dish Image</label>
+        <input class="form-input" id="menuItemImage" name="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml">
+        <p class="form-help-text" id="menuItemImageHelp">Upload an image to store it directly in MongoDB. Leave it empty to keep the current image.</p>
+        <div class="admin-image-preview" id="adminImagePreview" hidden>
+          <img class="admin-image-preview-media" id="adminImagePreviewMedia" alt="Selected menu preview">
+        </div>
 
         <div class="admin-form-actions">
           <button class="checkout-button admin-logout" id="saveMenuItemButton" type="submit">Add Dish</button>

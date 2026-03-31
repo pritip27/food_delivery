@@ -10,6 +10,7 @@ const PORT = 3100;
 const baseUrl = `http://${HOST}:${PORT}`;
 const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017";
 const databaseName = `spice_route_test_${Date.now()}`;
+const sampleImageDataUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9WnSUs8AAAAASUVORK5CYII=";
 
 let serverProcess;
 let mongoClient;
@@ -97,7 +98,9 @@ test("loads seeded menu items", async () => {
   assert.equal(payload.length, 17);
   assert.ok(payload.some((item) => item.id === "chicken-biryani"));
   assert.ok(payload.some((item) => item.id === "blue-mojito"));
-  assert.ok(payload.some((item) => item.image === "assets/menu/items/chicken-biryani.svg"));
+  const chickenBiryani = payload.find((item) => item.id === "chicken-biryani");
+  assert.ok(chickenBiryani);
+  assert.match(chickenBiryani.image, /^data:image\/svg\+xml;base64,/);
 });
 
 test("filters menu items by search text", async () => {
@@ -333,14 +336,14 @@ test("lets admin edit menu items and approve or reject orders", async () => {
       category: "Signature Main Course",
       price: 289,
       description: "Dum biryani layered with tender chicken, saffron rice, and slow-cooked spices.",
-      image: "assets/menu/items/chicken-biryani.svg",
+      image: sampleImageDataUrl,
     }),
   });
 
   assert.equal(menuUpdate.response.status, 200);
   assert.equal(menuUpdate.payload.name, "Chicken Biryani Royale");
   assert.equal(menuUpdate.payload.price, 289);
-  assert.equal(menuUpdate.payload.image, "assets/menu/items/chicken-biryani.svg");
+  assert.equal(menuUpdate.payload.image, sampleImageDataUrl);
 
   const updatedMenu = await api("/api/menu?search=royale");
   assert.equal(updatedMenu.response.status, 200);
@@ -450,16 +453,16 @@ test("lets admin create a menu item with an image path", async () => {
       category: "Wraps",
       price: 159,
       description: "Soft roll packed with paneer tikka, onions, and mint mayo.",
-      image: "assets/menu/items/chicken-shawarma.svg",
+      image: sampleImageDataUrl,
     }),
   });
 
   assert.equal(createMenuItem.response.status, 201);
   assert.equal(createMenuItem.payload.id, "paneer-roll");
-  assert.equal(createMenuItem.payload.image, "assets/menu/items/chicken-shawarma.svg");
+  assert.equal(createMenuItem.payload.image, sampleImageDataUrl);
 
   const menuLookup = await api("/api/menu?search=paneer%20roll");
   assert.equal(menuLookup.response.status, 200);
   assert.equal(menuLookup.payload.length, 1);
-  assert.equal(menuLookup.payload[0].image, "assets/menu/items/chicken-shawarma.svg");
+  assert.equal(menuLookup.payload[0].image, sampleImageDataUrl);
 });

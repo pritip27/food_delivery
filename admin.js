@@ -12,6 +12,9 @@ const adminOrderStatusFilter = document.getElementById("adminOrderStatusFilter")
 const menuForm = document.getElementById("menuForm");
 const menuItemsList = document.getElementById("menuItemsList");
 const cancelMenuEditButton = document.getElementById("cancelMenuEditButton");
+const menuItemImageInput = document.getElementById("menuItemImage");
+const adminImagePreview = document.getElementById("adminImagePreview");
+const adminImagePreviewMedia = document.getElementById("adminImagePreviewMedia");
 
 const allowedStatuses = ["received", "approved", "rejected", "preparing", "out for delivery", "delivered"];
 const menuSubmitButton = document.getElementById("saveMenuItemButton");
@@ -23,6 +26,7 @@ const deletingMenuIds = new Set();
 const editingMenuIds = new Set();
 let adminOrdersSearchDebounceId = null;
 let editingMenuItemId = "";
+let currentMenuImageValue = "";
 
 function formatPrice(value) {
   return `Rs. ${value}`;
@@ -107,11 +111,55 @@ function validateMenuPayload(payload) {
     errors.menuItemDescription = "Description must be at least 10 characters.";
   }
 
-  if (payload.image && !/^assets\/[\w./-]+\.(svg|png|jpe?g|webp|gif)$/i.test(payload.image)) {
-    errors.menuItemImage = "Use a valid local asset path like assets/menu/items/dish.svg.";
+  if (payload.image && !isSupportedImageValue(payload.image)) {
+    errors.menuItemImage = "Upload a PNG, JPG, WEBP, GIF, or SVG image.";
   }
 
   return errors;
+}
+
+function isSupportedImageValue(value) {
+  return (
+    /^assets\/[\w./-]+\.(svg|png|jpe?g|webp|gif)$/i.test(value) ||
+    /^data:image\/(?:png|jpeg|jpg|webp|gif|svg\+xml);base64,[a-z0-9+/=]+$/i.test(value)
+  );
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Could not read the selected image."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderAdminImagePreview(imageValue) {
+  if (!adminImagePreview || !adminImagePreviewMedia) {
+    return;
+  }
+
+  if (!imageValue) {
+    adminImagePreview.hidden = true;
+    adminImagePreviewMedia.removeAttribute("src");
+    return;
+  }
+
+  adminImagePreview.hidden = false;
+  adminImagePreviewMedia.src = imageValue;
+}
+
+function getMenuImageLabel(imageValue) {
+  if (!imageValue) {
+    return "No image set";
+  }
+
+  if (String(imageValue).startsWith("data:image/")) {
+    return "Stored in MongoDB";
+  }
+
+  return "Asset path image";
 }
 
 function setMenuProcessingState(isProcessing) {
@@ -134,7 +182,9 @@ function resetMenuForm() {
 
   menuForm.reset();
   editingMenuItemId = "";
+  currentMenuImageValue = "";
   clearFieldErrors();
+  renderAdminImagePreview("");
   setMenuProcessingState(false);
 
   if (cancelMenuEditButton) {
@@ -152,8 +202,9 @@ function populateMenuFormForEdit(menuItem) {
   menuForm.elements.category.value = menuItem.category;
   menuForm.elements.price.value = String(menuItem.price);
   menuForm.elements.description.value = menuItem.description;
-  menuForm.elements.image.value = menuItem.image || "";
+  currentMenuImageValue = menuItem.image || "";
   clearFieldErrors();
+  renderAdminImagePreview(currentMenuImageValue);
   menuSubmitButton.textContent = "Save Changes";
 
   if (cancelMenuEditButton) {
@@ -366,7 +417,7 @@ function renderMenuItems(menuItems) {
             </div>
           </div>
           <div class="order-card-top">
-            <span class="admin-menu-image-path">${item.image || "No image path set"}</span>
+            <span class="admin-menu-image-path">${getMenuImageLabel(item.image)}</span>
             <span class="order-status">${formatPrice(item.price)}</span>
           </div>
           <div class="order-card-bottom">
@@ -463,12 +514,25 @@ async function createMenuItem(event) {
 
   const isEditing = Boolean(editingMenuItemId);
   const formData = new FormData(menuForm);
+  const selectedImageFile = menuItemImageInput && menuItemImageInput.files ? menuItemImageInput.files[0] : null;
+  let imageValue = currentMenuImageValue;
+
+  if (selectedImageFile) {
+    try {
+      imageValue = await readFileAsDataUrl(selectedImageFile);
+    } catch (error) {
+      setFieldError("menuItemImage", error.message);
+      setMenuManagerMessage(error.message, "error");
+      return;
+    }
+  }
+
   const payload = {
     name: String(formData.get("name") || "").trim(),
     category: String(formData.get("category") || "").trim(),
     price: Number(formData.get("price") || 0),
     description: String(formData.get("description") || "").trim(),
-    image: String(formData.get("image") || "").trim(),
+    image: imageValue,
   };
   const fieldErrors = validateMenuPayload(payload);
 
@@ -501,6 +565,7 @@ async function createMenuItem(event) {
     });
 
     resetMenuForm();
+    currentMenuImageValue = menuItem.image || "";
     setMenuManagerMessage(
       isEditing ? `Updated ${menuItem.name} in the menu.` : `Added ${menuItem.name} to the menu.`,
       "success"
@@ -604,6 +669,27 @@ if (menuForm) {
     }
 
     setFieldError(target.id, "");
+  });
+}
+
+if (menuItemImageInput) {
+  menuItemImageInput.addEventListener("change", async () => {
+    setFieldError("menuItemImage", "");
+
+    const selectedImageFile = menuItemImageInput.files ? menuItemImageInput.files[0] : null;
+
+    if (!selectedImageFile) {
+      renderAdminImagePreview(currentMenuImageValue);
+      return;
+    }
+
+    try {
+      const previewValue = await readFileAsDataUrl(selectedImageFile);
+      renderAdminImagePreview(previewValue);
+    } catch (error) {
+      setFieldError("menuItemImage", error.message);
+      renderAdminImagePreview(currentMenuImageValue);
+    }
   });
 }
 

@@ -616,6 +616,26 @@ h1 {
   min-height: 16px;
 }
 
+.form-help-text {
+  margin: -4px 0 6px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.admin-image-preview {
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(31, 122, 61, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(251, 243, 233, 0.92));
+}
+
+.admin-image-preview-media {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+}
+
 .form-textarea {
   min-height: 84px;
   resize: vertical;
