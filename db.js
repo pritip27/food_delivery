@@ -106,6 +106,36 @@ async function seedCollectionIfEmpty(collection, filePath, fallbackItems) {
   await collection.insertMany(normalizedItems, { ordered: true });
 }
 
+async function ensureUsers(collection, usersToEnsure = []) {
+  for (const user of usersToEnsure) {
+    if (!user || !user.id || !user.email) {
+      continue;
+    }
+
+    await collection.updateOne(
+      { $or: [{ id: user.id }, { email: user.email }] },
+      { $set: { ...user } },
+      { upsert: true }
+    );
+  }
+}
+
+async function ensureMenuItems(collection, menuItemsToEnsure = []) {
+  for (const menuItem of menuItemsToEnsure) {
+    if (!menuItem || !menuItem.id) {
+      continue;
+    }
+
+    const existingItem = await collection.findOne({ id: menuItem.id }, { projection: { _id: 1, id: 1 } });
+
+    if (existingItem) {
+      continue;
+    }
+
+    await collection.insertOne({ ...normalizeMenuItemForStorage(menuItem) });
+  }
+}
+
 async function migrateMenuItemImages(menuItemsCollection) {
   const itemsWithAssetPaths = await menuItemsCollection
     .find({ image: { $regex: "^assets/" } }, { projection: { _id: 1, image: 1 } })
@@ -139,7 +169,9 @@ async function initializeDatabase({ defaultUsers, defaultMenuItems }) {
   await sessions.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
   await seedCollectionIfEmpty(users, path.join(__dirname, "users.json"), defaultUsers);
+  await ensureUsers(users, defaultUsers);
   await seedCollectionIfEmpty(menuItems, path.join(__dirname, "menu.json"), defaultMenuItems);
+  await ensureMenuItems(menuItems, defaultMenuItems);
   await seedCollectionIfEmpty(orders, path.join(__dirname, "orders.json"), []);
   await migrateMenuItemImages(menuItems);
 

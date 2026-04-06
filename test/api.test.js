@@ -201,6 +201,79 @@ test("keeps a login session valid after a server restart", async () => {
   assert.equal(session.payload.user.email, "user@spiceroute.com");
 });
 
+test("restores demo user credentials on restart when the database already exists", async () => {
+  const users = mongoClient.db(databaseName).collection("users");
+
+  await users.updateOne(
+    { email: "user@spiceroute.com" },
+    {
+      $set: {
+        passwordHash: "broken-hash",
+        passwordSalt: "broken-salt",
+        passwordIterations: 120000,
+      },
+    }
+  );
+
+  const failedLogin = await api("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: "user@spiceroute.com",
+      password: "user123",
+      role: "user",
+    }),
+  });
+
+  assert.equal(failedLogin.response.status, 401);
+
+  await stopServer();
+  await startServer();
+
+  const restoredLogin = await api("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: "user@spiceroute.com",
+      password: "user123",
+      role: "user",
+    }),
+  });
+
+  assert.equal(restoredLogin.response.status, 200);
+  assert.equal(restoredLogin.payload.user.email, "user@spiceroute.com");
+});
+
+test("restores missing default menu items on restart when the database already exists", async () => {
+  const menuItems = mongoClient.db(databaseName).collection("menuItems");
+
+  await menuItems.deleteMany({
+    id: {
+      $in: ["masala-puri", "pani-puri", "dahi-puri", "veg-burger", "mutton-biryani"],
+    },
+  });
+
+  const menuBeforeRestart = await api("/api/menu");
+  const menuIdsBeforeRestart = new Set(menuBeforeRestart.payload.map((item) => item.id));
+
+  assert.equal(menuBeforeRestart.response.status, 200);
+  assert.equal(menuIdsBeforeRestart.has("masala-puri"), false);
+  assert.equal(menuIdsBeforeRestart.has("mutton-biryani"), false);
+
+  await stopServer();
+  await startServer();
+
+  const menuAfterRestart = await api("/api/menu");
+  const menuIdsAfterRestart = new Set(menuAfterRestart.payload.map((item) => item.id));
+
+  assert.equal(menuAfterRestart.response.status, 200);
+  assert.equal(menuIdsAfterRestart.has("masala-puri"), true);
+  assert.equal(menuIdsAfterRestart.has("pani-puri"), true);
+  assert.equal(menuIdsAfterRestart.has("dahi-puri"), true);
+  assert.equal(menuIdsAfterRestart.has("veg-burger"), true);
+  assert.equal(menuIdsAfterRestart.has("mutton-biryani"), true);
+});
+
 test("creates an order for a user and lets admin update the status", async () => {
   const userLogin = await api("/api/login", {
     method: "POST",
