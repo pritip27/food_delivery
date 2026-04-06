@@ -16,6 +16,8 @@ const ordersNavLink = document.getElementById("ordersNavLink");
 const adminNavLink = document.getElementById("adminNavLink");
 const menuSearchInput = document.getElementById("menuSearchInput");
 const categoryFilters = document.getElementById("categoryFilters");
+const fullViewButton = document.getElementById("fullViewButton");
+const dishesOnlyViewButton = document.getElementById("dishesOnlyViewButton");
 const customerNameInput = document.getElementById("customerName");
 const upiIdInput = document.getElementById("upiId");
 const heroCardLabel = document.getElementById("heroCardLabel");
@@ -40,6 +42,7 @@ const featuredHeroIds = ["chicken-biryani", "mutton-biryani", "chicken-shawarma"
 const featuredMenuIds = ["chicken-biryani", "chicken-shawarma", "blue-mojito", "chicken-burger", "loaded-french-fries"];
 const CART_STORAGE_KEY = "spiceRouteCart";
 const MENU_FILTERS_STORAGE_KEY = "spiceRouteMenuFilters";
+const VIEW_MODE_STORAGE_KEY = "spiceRouteViewMode";
 
 function formatPrice(value) {
   return `Rs. ${value}`;
@@ -114,6 +117,32 @@ function persistMenuFilters() {
     search: menuSearchInput ? menuSearchInput.value.trim() : "",
     category: selectedCategory,
   });
+}
+
+function getSavedViewMode() {
+  const savedMode = readLocalStorage(VIEW_MODE_STORAGE_KEY, "full");
+  return savedMode === "dishes" ? "dishes" : "full";
+}
+
+function syncViewModeButtons(mode) {
+  if (fullViewButton) {
+    const isFullMode = mode === "full";
+    fullViewButton.classList.toggle("is-active", isFullMode);
+    fullViewButton.setAttribute("aria-pressed", isFullMode ? "true" : "false");
+  }
+
+  if (dishesOnlyViewButton) {
+    const isDishesMode = mode === "dishes";
+    dishesOnlyViewButton.classList.toggle("is-active", isDishesMode);
+    dishesOnlyViewButton.setAttribute("aria-pressed", isDishesMode ? "true" : "false");
+  }
+}
+
+function applyViewMode(mode) {
+  const normalizedMode = mode === "dishes" ? "dishes" : "full";
+  document.body.classList.toggle("view-dishes-only", normalizedMode === "dishes");
+  writeLocalStorage(VIEW_MODE_STORAGE_KEY, normalizedMode);
+  syncViewModeButtons(normalizedMode);
 }
 
 function restoreMenuFilters() {
@@ -288,7 +317,7 @@ function syncNavigationForSession() {
   }
 
   if (adminNavLink) {
-    adminNavLink.hidden = role === "user";
+    adminNavLink.hidden = role !== "admin";
   }
 }
 
@@ -928,6 +957,18 @@ if (menuSearchInput) {
   });
 }
 
+if (fullViewButton) {
+  fullViewButton.addEventListener("click", () => {
+    applyViewMode("full");
+  });
+}
+
+if (dishesOnlyViewButton) {
+  dishesOnlyViewButton.addEventListener("click", () => {
+    applyViewMode("dishes");
+  });
+}
+
 if (categoryFilters) {
   categoryFilters.addEventListener("click", (event) => {
     const button = event.target.closest("[data-category]");
@@ -945,6 +986,7 @@ if (categoryFilters) {
 closePaymentToast();
 restoreCart();
 restoreMenuFilters();
+applyViewMode(getSavedViewMode());
 renderCart();
 updateCheckoutAvailability();
 

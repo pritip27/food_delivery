@@ -273,17 +273,27 @@ function serveFile(response, filePath) {
 function parseBody(request) {
   return new Promise((resolve, reject) => {
     let body = "";
+    let bodyTooLarge = false;
 
     request.on("data", (chunk) => {
+      if (bodyTooLarge) {
+        return;
+      }
+
       body += chunk;
 
-      if (body.length > MAX_BODY_SIZE) {
-        reject(new Error("Request body is too large."));
-        request.destroy();
+      if (Buffer.byteLength(body, "utf8") > MAX_BODY_SIZE) {
+        bodyTooLarge = true;
+        body = "";
       }
     });
 
     request.on("end", () => {
+      if (bodyTooLarge) {
+        reject(new Error("Request body is too large."));
+        return;
+      }
+
       if (!body) {
         resolve({});
         return;
@@ -520,6 +530,10 @@ function validatePayment(payment) {
       paymentStatus: "paid",
     },
   };
+}
+
+function isBodyTooLargeError(error) {
+  return Boolean(error && error.message === "Request body is too large.");
 }
 
 function isValidImageValue(image) {
@@ -858,6 +872,13 @@ async function startServer() {
         sendJson(response, 201, result.menuItem);
         return;
       } catch (error) {
+        if (isBodyTooLargeError(error)) {
+          sendJson(response, 413, {
+            message: "Image payload is too large. Please upload an image under 3 MB or use a hosted URL.",
+          });
+          return;
+        }
+
         sendJson(response, 400, { message: "Request body must be valid JSON." });
         return;
       }
@@ -888,6 +909,13 @@ async function startServer() {
         sendJson(response, 200, result.menuItem);
         return;
       } catch (error) {
+        if (isBodyTooLargeError(error)) {
+          sendJson(response, 413, {
+            message: "Image payload is too large. Please upload an image under 3 MB or use a hosted URL.",
+          });
+          return;
+        }
+
         sendJson(response, 400, { message: "Request body must be valid JSON." });
         return;
       }

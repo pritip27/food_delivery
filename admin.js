@@ -9,6 +9,8 @@ const menuManagerMessage = document.getElementById("menuManagerMessage");
 const refreshMenuButton = document.getElementById("refreshMenuButton");
 const adminOrdersSearchInput = document.getElementById("adminOrdersSearchInput");
 const adminOrderStatusFilter = document.getElementById("adminOrderStatusFilter");
+const adminHistoryCount = document.getElementById("adminHistoryCount");
+const orderHistoryList = document.getElementById("orderHistoryList");
 const menuForm = document.getElementById("menuForm");
 const menuItemsList = document.getElementById("menuItemsList");
 const cancelMenuEditButton = document.getElementById("cancelMenuEditButton");
@@ -18,6 +20,15 @@ const adminImagePreview = document.getElementById("adminImagePreview");
 const adminImagePreviewMedia = document.getElementById("adminImagePreviewMedia");
 const useDefaultMenuImageButton = document.getElementById("useDefaultMenuImageButton");
 const removeMenuImageButton = document.getElementById("removeMenuImageButton");
+const MAX_MENU_IMAGE_UPLOAD_BYTES = 1024 * 1024 * 3;
+const SUPPORTED_IMAGE_MIME_TYPES = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+  "image/gif",
+  "image/svg+xml",
+]);
 
 const allowedStatuses = ["received", "approved", "rejected", "preparing", "out for delivery", "delivered"];
 const menuSubmitButton = document.getElementById("saveMenuItemButton");
@@ -202,6 +213,21 @@ function isSupportedImageValue(value) {
 
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
+    if (!file) {
+      reject(new Error("Please select an image file to upload."));
+      return;
+    }
+
+    if (typeof file.size === "number" && file.size > MAX_MENU_IMAGE_UPLOAD_BYTES) {
+      reject(new Error("Image is too large. Please upload an image under 3 MB."));
+      return;
+    }
+
+    if (file.type && !SUPPORTED_IMAGE_MIME_TYPES.has(String(file.type).toLowerCase())) {
+      reject(new Error("Upload a PNG, JPG, WEBP, GIF, or SVG image."));
+      return;
+    }
+
     const reader = new FileReader();
 
     reader.onload = () => resolve(String(reader.result || ""));
@@ -500,6 +526,46 @@ function renderOrders(orders) {
   renderOrderStats(orders);
 }
 
+function renderOrderHistory(orders) {
+  if (!orderHistoryList || !adminHistoryCount) {
+    return;
+  }
+
+  const finalStatuses = new Set(["delivered", "rejected"]);
+  const historyOrders = orders
+    .filter((order) => finalStatuses.has(String(order.status || "").toLowerCase()))
+    .slice()
+    .reverse();
+
+  adminHistoryCount.textContent = `${historyOrders.length} record${historyOrders.length === 1 ? "" : "s"}`;
+
+  if (historyOrders.length === 0) {
+    orderHistoryList.innerHTML = '<p class="menu-loading">No completed or rejected orders yet.</p>';
+    return;
+  }
+
+  orderHistoryList.innerHTML = historyOrders
+    .map(
+      (order) => `
+        <article class="order-card order-history-card-item">
+          <div class="order-card-top">
+            <div>
+              <p class="order-id">${order.id}</p>
+              <h3>${order.customerName}</h3>
+            </div>
+            <span class="order-status">${order.status}</span>
+          </div>
+          <p class="order-meta">${order.items.length} item${order.items.length === 1 ? "" : "s"} | ${order.userEmail || "Guest order"}</p>
+          <div class="order-card-bottom">
+            <span>${new Date(order.createdAt).toLocaleString()}</span>
+            <strong>${formatPrice(order.total)}</strong>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+}
+
 async function loadOrders() {
   setAdminMessage("Loading latest orders...", null);
   setRefreshButtonState(refreshOrdersButton, true, "Refreshing...", refreshOrdersButtonLabel);
@@ -518,9 +584,13 @@ async function loadOrders() {
     }
 
     const requestPath = searchParams.toString() ? `/api/orders?${searchParams.toString()}` : "/api/orders";
-    const orders = await apiRequest(requestPath);
+    const [orders, historyOrders] = await Promise.all([apiRequest(requestPath), apiRequest("/api/orders")]);
     renderOrders(orders);
-    setAdminMessage(`Loaded ${orders.length} order${orders.length === 1 ? "" : "s"}.`, "success");
+    renderOrderHistory(historyOrders);
+    setAdminMessage(
+      `Loaded ${orders.length} active order${orders.length === 1 ? "" : "s"} and ${historyOrders.filter((order) => ["delivered", "rejected"].includes(String(order.status || "").toLowerCase())).length} history records.`,
+      "success"
+    );
   } catch (error) {
     if (error.message === "You must be logged in.") {
       await logoutSession();
@@ -529,6 +599,12 @@ async function loadOrders() {
     }
 
     ordersList.innerHTML = '<p class="menu-error">Could not load orders. Please try again.</p>';
+    if (orderHistoryList) {
+      orderHistoryList.innerHTML = '<p class="menu-error">Could not load order history. Please try again.</p>';
+    }
+    if (adminHistoryCount) {
+      adminHistoryCount.textContent = "0 records";
+    }
     setAdminMessage(error.message, "error");
   } finally {
     setRefreshButtonState(refreshOrdersButton, false, "Refreshing...", refreshOrdersButtonLabel);

@@ -103,6 +103,10 @@
       <div class="filter-toolbar">
         <label class="visually-hidden" for="menuSearchInput">Search menu</label>
         <input class="form-input filter-input" id="menuSearchInput" type="search" placeholder="Search dishes, categories, or ingredients">
+        <div class="view-mode-toggle" role="group" aria-label="Storefront view mode">
+          <button class="secondary-button view-mode-button" id="fullViewButton" type="button" aria-pressed="true">Full Experience</button>
+          <button class="secondary-button view-mode-button" id="dishesOnlyViewButton" type="button" aria-pressed="false">Dishes Only</button>
+        </div>
         <div class="category-chip-row" id="categoryFilters" aria-label="Menu categories"></div>
       </div>
 
