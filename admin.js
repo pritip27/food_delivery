@@ -619,7 +619,6 @@ function renderMenuItems(menuItems) {
             <span class="order-status">${formatPrice(item.price)}</span>
           </div>
           <div class="order-card-bottom">
-            <span>${item.id}</span>
             <div class="menu-item-actions">
               <button class="secondary-button status-save-button" type="button" data-action="edit-menu-item" data-menu-id="${item.id}">Edit</button>
               <button class="secondary-button status-save-button" type="button" data-action="delete-menu-item" data-menu-id="${item.id}">Delete</button>
