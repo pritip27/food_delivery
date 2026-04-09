@@ -265,7 +265,13 @@ function serveFile(response, filePath) {
       return;
     }
 
-    response.writeHead(200, { "Content-Type": contentType });
+    const headers = { "Content-Type": contentType };
+
+    if (ext === ".html") {
+      headers["Cache-Control"] = "no-store, max-age=0";
+    }
+
+    response.writeHead(200, headers);
     response.end(data);
   });
 }
