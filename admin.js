@@ -253,22 +253,6 @@ function renderAdminImagePreview(imageValue) {
   adminImagePreviewMedia.dataset.fallbackImage = getFallbackImageForCategory("");
 }
 
-function getMenuImageLabel(imageValue) {
-  if (!imageValue) {
-    return "No image set";
-  }
-
-  if (String(imageValue).startsWith("data:image/")) {
-    return "Stored in MongoDB";
-  }
-
-  if (isValidRemoteImageUrl(imageValue)) {
-    return "Hosted image URL";
-  }
-
-  return "Asset path image";
-}
-
 function syncRemoveImageButtonVisibility() {
   if (!removeMenuImageButton) {
     return;
@@ -632,7 +616,6 @@ function renderMenuItems(menuItems) {
             </div>
           </div>
           <div class="order-card-top">
-            <span class="admin-menu-image-path">${getMenuImageLabel(item.image)}</span>
             <span class="order-status">${formatPrice(item.price)}</span>
           </div>
           <div class="order-card-bottom">
